@@ -89,8 +89,6 @@ public class Ship extends SupplyChainObject {
 	}
 	
 	public TransactionResult verifyMove(String src, String trg, SupplyChainView currentView) {
-		System.out.println("this.doc: " + this.doc);
-		System.out.println("src: " + src);
 		if (!this.doc.equals(src))
 			return new TransactionResult(false, Response.Status.BAD_REQUEST, "ERROR: The ship " + this.getId() + " is not anchored in the dock " + src);
 		
@@ -105,7 +103,7 @@ public class Ship extends SupplyChainObject {
 		shipNextState.setDoc(trg);
 		
 		for (String containerId : this.containers) {
-			Container container = (Container) currentView.getObjectState(containerId);
+			Container container = (Container) currentView.getObjectState(containerId).deepCopy();
 			container.setDoc(trg);
 			container.updateItemsState(currentView, null, trg);
 			currentView.addNextState(container);

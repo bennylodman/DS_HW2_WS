@@ -170,7 +170,7 @@ public class Container extends SupplyChainObject {
 		if (!this.ship.equals(src))
 			return new TransactionResult(false, Response.Status.BAD_REQUEST, "ERROR: The container " + this.getId() + " is not on the ship " + src);
 		
-		if (srcShip.getDoc() != trgShip.getDoc())
+		if (!srcShip.getDoc().equals(trgShip.getDoc())) 
 			return new TransactionResult(false, Response.Status.BAD_REQUEST,   "ERROR: " + src + " and " + trg + " are not on the same dock");
 		
 		return new TransactionResult(true, Response.Status.OK, "OK");

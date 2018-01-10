@@ -132,7 +132,7 @@ public class Item extends SupplyChainObject {
 		if (!this.container.equals(src))
 			return new TransactionResult(false,Response.Status.BAD_REQUEST, "ERROR: The item " + this.getId() + " is not in the container " + src);
 		
-		if (srcContainer.getDoc() != trgContainer.getDoc())
+		if (!srcContainer.getDoc().equals(trgContainer.getDoc()))
 			return new TransactionResult(false,Response.Status.BAD_REQUEST,  "ERROR: " + src + " and " + trg + " are not on the same dock");
 		
 		return new TransactionResult(true,Response.Status.OK, "OK");
