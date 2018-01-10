@@ -64,6 +64,11 @@ public class Item extends SupplyChainObject {
 		if (!view.hasObject(containerId))
 			return new TransactionResult(false,Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + containerId);
 		
+		Container trgContainer = (Container) view.getObjectState(containerId);
+		
+		if (trgContainer.isDeleted())
+			return new TransactionResult(false, Response.Status.FORBIDDEN, "ERROR: The object " + containerId + " has been deleted");
+		
 		return new TransactionResult(true, Response.Status.OK, "OK");
 	}
 	
