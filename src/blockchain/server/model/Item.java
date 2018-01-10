@@ -144,6 +144,7 @@ public class Item extends SupplyChainObject {
 		Item itemNextState = this.deepCopy(); 
 		
 		itemNextState.setContainer(trgContainer.getId());
+		itemNextState.setShip(trgContainer.getShip());
 		srcContainer.removeItem(getId());
 		trgContainer.addItem(getId());
 		
