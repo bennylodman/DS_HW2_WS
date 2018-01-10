@@ -81,9 +81,10 @@ public class ZooKeeperHandler implements Watcher {
 			blocksData = ZookeeperUtils.getNodeData(zk, path + "/" + son);
 			/*It is necessary in order to make sure that some one else didn't removed it and added new one
 			* must check block id + server that created him is matching*/
+			System.out.println("@@@Try to remove node in path:" + path + "/" + son);
 			if (data.equals(blocksData))
 			{
-				ZookeeperUtils.removeZNode(zk, son);
+				ZookeeperUtils.removeZNode(zk, path + "/" + son);
 				return;
 			}
 		}

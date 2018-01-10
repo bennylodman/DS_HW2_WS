@@ -64,8 +64,16 @@ public class ZookeeperUtils {
 	 *
 	 */
 	public static void removeZNode(ZooKeeper zk, String path) throws KeeperException, InterruptedException {
+		List<String> children = zk.getChildren(path, null);
+		for(String child : children)
+		{
+			removeZNode(zk, path + "/" + child);
+		}
+		
 		zk.delete(path, zk.exists(path,true).getVersion());
 	}
+	
+
 
 	/**
 	 * return the name of the smallest son of the node in the path
