@@ -67,7 +67,6 @@ public class GroupServers extends ReceiverAdapter {
 		scMessage.setSendersName(serverName);
 		try {
 			this.channel.send(new Message(null, gson.toJson(scMessage)));
-			System.out.println("Requested block: " + scMessage.getBlock().getBlockName());
 			
 		} catch (Exception e) {
 			System.out.println("requestBlock: failed to send message");
@@ -106,7 +105,7 @@ public class GroupServers extends ReceiverAdapter {
 			
 			case REQUEST_BLOCK: {
 				System.out.println("@@@ receive REQUEST_BLOCK");
-				if (scMessage.getTargetName().equals(serverName) || scMessage.getTargetName().equals(BRODSCST))
+				if (!scMessage.getSendersName().equals(serverName))
 					new RequestBlockHandler(view, scMessage, channel, serverName).start();
 				break;
 			}
@@ -118,7 +117,7 @@ public class GroupServers extends ReceiverAdapter {
 			}
 			
 			case RESPONSE_BLOCK: {
-				System.out.println("@@@ receive RESPONSE_BLOCK: " + scMessage.getBlock().getBlockName());
+				System.out.println("@@@ receive RESPONSE_BLOCK: " + gson.toJson(scMessage));
 				rStack.addIfRelevant(scMessage);
 				break;
 			}

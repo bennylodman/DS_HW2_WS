@@ -63,7 +63,7 @@ public class SupplyChainView {
 			return;
 		}
 			
-		blockChain.add(block);
+		blockChain.add(block.deepCopy());
 		knownBlocksPath = knownBlocksPath + "/" + block.getBlockName();
 		this.knownBlocksDepth++;
 //		rwl.releaseWrite();

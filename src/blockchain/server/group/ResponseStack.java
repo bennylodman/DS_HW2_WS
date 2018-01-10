@@ -3,6 +3,8 @@ package blockchain.server.group;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import blockchain.server.model.SupplyChainMessage;
 
 public class ResponseStack {
@@ -30,13 +32,13 @@ public class ResponseStack {
 	}
 	
 	public synchronized void addIfRelevant(SupplyChainMessage msg) {
+		Gson gson = new Gson();
 		if (type != msg.getType())
 			return;
 		
 		if (Integer.parseInt(msg.getArgs()) == relevantMessageDepth) {
 			stack.add(msg);
-			if(msg.getBlock() != null)
-				System.out.println("Add message to stack that contains block: " + msg.getBlock().getBlockName());
+			System.out.println("@@@addIfRelevant  " + gson.toJson(msg));
 			
 		}
 	}

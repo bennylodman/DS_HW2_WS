@@ -38,8 +38,9 @@ public class ServerThread extends Thread {
             if(msg.getType() == MessageType.RESPONSE_BLOCK && msg.getBlock() !=null)
             {
                 /*Found the needed block -> add it to view*/
-            	System.out.println(msg.getBlock());
+            	System.out.println("@@@ before update view handler with new block " + gson.toJson(msg));
                 new UpdateViewHandler(DsTechShipping.view, msg, DsTechShipping.groupServers.getChannel(), DsTechShipping.groupServers.getServerName(), DsTechShipping.zkHandler).run();
+                assert(DsTechShipping.getBlockChainView().getKnownBlocksDepth() == msg.getBlock().getDepth());
                 return true;
             }
         }
@@ -53,10 +54,9 @@ public class ServerThread extends Thread {
         List<String> serversNames = null;
         List<String> serversNamesBeforeRequest = null;
         Boolean waitForBlock = true;
-        System.out.println("@@@Try to get missing blocks");
+        System.out.println("@@@handleMissingBlock");
         for(String blockString : missingBlockList)
         {
-        	System.out.println(blockString);
             block = gson.fromJson(blockString, BlockHeader.class);
 
             /*Loop while server that created the block is alive or if got the message*/
@@ -86,7 +86,7 @@ public class ServerThread extends Thread {
             {
                 /*Get response messages*/
                 responseList = DsTechShipping.groupServers.waitForResponse();
-                System.out.println("Got next messages in stack: " + responseList.toString());
+                System.out.println("Got next messages in stack: " + gson.toJson(responseList));
 
                 if (isNeededBlockInList_InsertToView(responseList) || (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null))
                 {
@@ -158,7 +158,7 @@ public class ServerThread extends Thread {
                 if(serversName.contains(ackMsg.getSendersName()))
                 {
                     serversGotTheBlock++;
-                    /*todo: will current server will send ack message when he receive the message from himself??*/
+                    
                     serversName.remove(ackMsg.getSendersName());
                 }
             }

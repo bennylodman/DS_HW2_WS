@@ -3,6 +3,8 @@ package blockchain.server.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import blockchain.server.utils.GeneralUtilities;
+
 public class Block implements java.io.Serializable {
 	private static final long serialVersionUID = 6612886098841491544L;
 	
@@ -22,6 +24,10 @@ public class Block implements java.io.Serializable {
 	
 	public String getBlockName() {
 		return blockName;
+	}
+	
+	public Block deepCopy() {
+		return GeneralUtilities.deepCopy(this, Block.class);
 	}
 	
 	public void setBlockName(String blockName) {
