@@ -69,12 +69,7 @@ public class ZooKeeperHandler implements Watcher {
 	}
 
 	/**
-	 * add new block to chain
-	 * - verify that the path is to the end of the chain and that it is the smallest son added
-	 *
-	 * @param path - path to the father of the znode in the block chain.
-	 * @param data - json string of BlockHeader Header (Server Id, BlockHeader id) to compare that this is the right one.
-	 * @param depth - current block chain length
+
 	 *
 	 */
 	public void removeBlockFromBlockChain(String path, String data, int depth)throws KeeperException, InterruptedException
@@ -83,7 +78,7 @@ public class ZooKeeperHandler implements Watcher {
 		String blocksData = null;
 		for (String son : sonList)
 		{
-			blocksData = ZookeeperUtils.getNodeData(zk, son);
+			blocksData = ZookeeperUtils.getNodeData(zk, path + "/" + son);
 			/*It is necessary in order to make sure that some one else didn't removed it and added new one
 			* must check block id + server that created him is matching*/
 			if (data.equals(blocksData))
