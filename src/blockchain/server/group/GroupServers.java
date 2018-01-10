@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,13 +28,18 @@ public class GroupServers extends ReceiverAdapter {
 	private static int RESPONSE_WAIT_TIME = 1;
 	private static String BRODSCST = "ALL"; 
 	private Gson gson = new Gson();
+
 	
 	private JChannel channel;
-	private String serverName = System.getProperty("user.name", "n/a");
+	private String serverName;
 	private SupplyChainView view;
 	private ResponseStack rStack;
+
+	
 	
 	public GroupServers(SupplyChainView view) {
+		Random rand = new Random();		
+		this.serverName = System.getProperty("user.name", "n/a") + String.valueOf(rand.nextInt(1000));
 		this.rStack = new ResponseStack();
 		this.view = view;
 		try {
