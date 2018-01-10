@@ -46,22 +46,23 @@ public class ServerThread extends Thread {
     }
 
     /*The function receive sorted list of missing blocks */
-    private void handleMissingBlock(List<String> missingBlockList) throws KeeperException, InterruptedException {
+    private void handleMissingBlock(List<String> missingBlockList, Boolean isNewServerFlag) throws KeeperException, InterruptedException {
         BlockHeader block = null;
         List<SupplyChainMessage> responseList = null;
         List<String> serversNames = null;
         List<String> serversNamesBeforeRequest = null;
         Boolean waitForBlock = true;
-
+        System.out.println("@@@Try to get missing blocks");
         for(String blockString : missingBlockList)
         {
         	System.out.println(blockString);
             block = gson.fromJson(blockString, BlockHeader.class);
 
             /*Loop while server that created the block is alive or if got the message*/
-            while ((DsTechShipping.zkHandler.checkIfServerExist(block.getServerName())) && (DsTechShipping.view.getFromBlockChain(block.getDepth()) == null) )
+            while ((!isNewServerFlag) && (DsTechShipping.zkHandler.checkIfServerExist(block.getServerName())) && (DsTechShipping.view.getFromBlockChain(block.getDepth()) == null) )
             {
                 /*Busy wait*/
+            	System.out.println("@@@Waiting for block from the server that created");
             }
 
             /*Check if already have this block*/
@@ -69,9 +70,12 @@ public class ServerThread extends Thread {
             {
                 continue;
             }
+            System.out.println("@@@Before sending block request to all servers");
 
             /*Get servers list*/
             serversNamesBeforeRequest = DsTechShipping.zkHandler.getServerNames();
+            
+            System.out.println("@@@Servers list is: " + serversNamesBeforeRequest);
 
             /*Send request message with current block to all servers*/
             DsTechShipping.groupServers.requestBlock(block.getDepth());
@@ -119,6 +123,8 @@ public class ServerThread extends Thread {
 
                 }
             }
+            
+            System.out.println("@@@Got missing block");
         }
         return;
     }
@@ -158,9 +164,40 @@ public class ServerThread extends Thread {
         }
 
         /*There is minimal amount of servers that know the new block*/
-
-
     }
+    
+    
+    private void updateNewServerData() {
+    	Integer depth = DsTechShipping.getBlockChainView().getKnownBlocksDepth();
+    	SupplyChainView currentView = DsTechShipping.getBlockChainView();
+    	List<String> missingBlockList = null;
+    	
+        /*Need find out what are the missing blocks*/
+        try {
+            missingBlockList = DsTechShipping.zkHandler.getAllTheNextBlocks(currentView.getKnownBlocksPath());
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            assert(false);
+        }
+        
+        if(missingBlockList.size()==0)
+        	return;
+
+        /*Request and handle all missing blocks*/
+        try {
+            handleMissingBlock(missingBlockList, true);
+            assert(false);
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            assert(false);
+            e.printStackTrace();
+        }
+    	
+    }
+    
     public void run(){
         BlockHandler blockToAddTheChain = null;
         String path = new String();
@@ -168,6 +205,8 @@ public class ServerThread extends Thread {
         try {
 			DsTechShipping.zkHandler.addServer(DsTechShipping.groupServers.getServerName());
 		} catch (KeeperException | InterruptedException e1) {}
+        
+        updateNewServerData();
         
         while(true)
         {
@@ -267,7 +306,7 @@ public class ServerThread extends Thread {
 
                 /*Request and handle all missing blocks*/
                 try {
-                    handleMissingBlock(missingBlockList);
+                    handleMissingBlock(missingBlockList, false);
                     assert(false);
                 } catch (KeeperException e) {
                     e.printStackTrace();
@@ -275,7 +314,7 @@ public class ServerThread extends Thread {
                     assert(false);
                     e.printStackTrace();
                 }
-
+                System.out.println("@@@Got all missing blocks");
                 /*Try again with new depth - next loop will do it*/
             }
         }
