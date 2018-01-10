@@ -18,10 +18,17 @@ import blockchain.server.model.QueryResult;
 import blockchain.server.model.Ship;
 import blockchain.server.model.TransactionResult;
 
+@Path("/ships")
 public class ShipR {
 	
 	private Gson gson = new Gson();
-
+	
+	@GET
+	@Path("/ping")
+	public String ping() {
+		return "OK";
+	}
+	
 	@GET
 	@Path("/{shipId}")
 	public Response getShip(@PathParam("shipId") String shipId) {

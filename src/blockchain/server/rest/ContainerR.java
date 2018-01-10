@@ -18,6 +18,7 @@ import blockchain.server.model.History;
 import blockchain.server.model.QueryResult;
 import blockchain.server.model.TransactionResult;
 
+@Path("/containers")
 public class ContainerR {	
 	private Gson gson = new Gson();
 

@@ -12,7 +12,7 @@ import org.apache.zookeeper.ZooKeeper;
 
 // this class will handle all work with the zookeeper server
 public class ZooKeeperHandler implements Watcher {
-	public static String ZK_ADDR = "192.168.1.13:2181,192.168.1.21:2181";
+	public static String ZK_ADDR = "192.168.14.59:2181,192.168.14.78:2181";
 	public static int ZK_PORT = 2181;
 
 	private static ZooKeeper zk;

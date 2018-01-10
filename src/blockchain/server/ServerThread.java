@@ -165,7 +165,10 @@ public class ServerThread extends Thread {
         BlockHandler blockToAddTheChain = null;
         String path = new String();
         List<String> missingBlockList = null;
-
+        try {
+			DsTechShipping.zkHandler.addServer(DsTechShipping.groupServers.getServerName());
+		} catch (KeeperException | InterruptedException e1) {}
+        
         while(true)
         {
             /*If handel new block*/

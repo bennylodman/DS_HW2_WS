@@ -6,8 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.zookeeper.KeeperException;
-
 import com.google.gson.Gson;
 
 import blockchain.server.group.BlockHandler;
@@ -33,15 +31,10 @@ public class DsTechShipping {
 	public static BlockHandler blocksHandler = new BlockHandler(); 
 	public static Object blockHandlerLock = new Object();
 
-	static {
-		try {
-			DsTechShipping.groupServers = new GroupServers(view);
-			DsTechShipping.zkHandler.addServer(DsTechShipping.groupServers.getServerName());
-			new ServerThread().start();
-		} catch (KeeperException | InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+//	static {
+//		DsTechShipping.groupServers = new GroupServers(view);
+//		new ServerThread().start();
+//	}
 	
 //	public static void initialize() {
 //	try {
