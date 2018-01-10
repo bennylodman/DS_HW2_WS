@@ -86,7 +86,7 @@ public class ServerThread extends Thread {
             {
                 /*Get response messages*/
                 responseList = DsTechShipping.groupServers.waitForResponse();
-                System.out.println("Got next messages in stack: " + gson.toJson(responseList));
+                System.out.println("@@@Got next messages in stack: " + gson.toJson(responseList));
 
                 if (isNeededBlockInList_InsertToView(responseList) || (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null))
                 {
@@ -97,6 +97,7 @@ public class ServerThread extends Thread {
                 {
                     /*Get current alive servers*/
                     serversNames = DsTechShipping.zkHandler.getServerNames();
+                    serversNames.remove(DsTechShipping.groupServers.getServerName());
 
                     /*Remove from current alive servers all the servers that joined after the request*/
                     for(String name: serversNames)
