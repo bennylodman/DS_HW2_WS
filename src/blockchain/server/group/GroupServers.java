@@ -37,7 +37,7 @@ public class GroupServers extends ReceiverAdapter {
 		this.rStack = new ResponseStack();
 		this.view = view;
 		try {
-			channel = new JChannel("C:/git/DS_HW2_WS/WebContent/WEB-INF/config/tcp.xml");
+			channel = new JChannel("C:/workspace/Java/DS_HW2_WS/WebContent/WEB-INF/config/tcp.xml");
 			channel.setReceiver(this);
 			channel.connect("GroupServers");
 			channel.getState(null, 10000);
@@ -67,6 +67,8 @@ public class GroupServers extends ReceiverAdapter {
 		scMessage.setSendersName(serverName);
 		try {
 			this.channel.send(new Message(null, gson.toJson(scMessage)));
+			System.out.println("Requested block: " + scMessage.getBlock().getBlockName());
+			
 		} catch (Exception e) {
 			System.out.println("requestBlock: failed to send message");
 		}
@@ -116,7 +118,7 @@ public class GroupServers extends ReceiverAdapter {
 			}
 			
 			case RESPONSE_BLOCK: {
-				System.out.println("@@@ receive RESPONSE_BLOCK");
+				System.out.println("@@@ receive RESPONSE_BLOCK: " + scMessage.getBlock().getBlockName());
 				rStack.addIfRelevant(scMessage);
 				break;
 			}

@@ -35,6 +35,9 @@ public class ResponseStack {
 		
 		if (Integer.parseInt(msg.getArgs()) == relevantMessageDepth) {
 			stack.add(msg);
+			if(msg.getBlock() != null)
+				System.out.println("Add message to stack that contains block: " + msg.getBlock().getBlockName());
+			
 		}
 	}
 	

@@ -38,6 +38,7 @@ public class ServerThread extends Thread {
             if(msg.getType() == MessageType.RESPONSE_BLOCK && msg.getBlock() !=null)
             {
                 /*Found the needed block -> add it to view*/
+            	System.out.println(msg.getBlock());
                 new UpdateViewHandler(DsTechShipping.view, msg, DsTechShipping.groupServers.getChannel(), DsTechShipping.groupServers.getServerName(), DsTechShipping.zkHandler).run();
                 return true;
             }
@@ -85,7 +86,7 @@ public class ServerThread extends Thread {
             {
                 /*Get response messages*/
                 responseList = DsTechShipping.groupServers.waitForResponse();
-
+                System.out.println("Got next messages in stack: " + responseList.toString());
 
                 if (isNeededBlockInList_InsertToView(responseList) || (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null))
                 {
