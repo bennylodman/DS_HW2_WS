@@ -74,7 +74,7 @@ public class ItemR {
 	@GET
 	@Path("/{itemId}/history")
 	public Response getItemsHistory(@PathParam("itemId") String itemId) {
-		QueryResult qr = DsTechShipping.getItemState(itemId);
+		QueryResult qr = DsTechShipping.getShipHistory(itemId);
 		if (qr.getStatus()) {
 			History history = new History(qr.getRequestedObjects());
 			String historyStr = gson.toJson(history);
