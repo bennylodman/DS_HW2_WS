@@ -37,7 +37,7 @@ public class GroupServers extends ReceiverAdapter {
 		this.rStack = new ResponseStack();
 		this.view = view;
 		try {
-			channel = new JChannel("WebContent/WEB-INF/config/tcp.xml");
+			channel = new JChannel("C:/git/DS_HW2_WS/WebContent/WEB-INF/config/tcp.xml");
 			channel.setReceiver(this);
 			channel.connect("GroupServers");
 			channel.getState(null, 10000);
@@ -96,23 +96,27 @@ public class GroupServers extends ReceiverAdapter {
 		
 		switch (scMessage.getType()) {
 			case PUBLISHE_BLOCK: {
-				if (scMessage.getSendersName() != serverName)
+				System.out.println("@@@ receive PUBLISHE_BLOCK");
+				if (!scMessage.getSendersName().equals(serverName))
 					new UpdateViewHandler(view, scMessage, channel, serverName, DsTechShipping.zkHandler).start();
 				break;
 			}
 			
 			case REQUEST_BLOCK: {
-				if (scMessage.getTargetName() == serverName || scMessage.getTargetName() == BRODSCST)
+				System.out.println("@@@ receive REQUEST_BLOCK");
+				if (scMessage.getTargetName().equals(serverName) || scMessage.getTargetName().equals(BRODSCST))
 					new RequestBlockHandler(view, scMessage, channel, serverName).start();
 				break;
 			}
 			
 			case ACK: {
+				System.out.println("@@@ receive ACK");
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
 			
 			case RESPONSE_BLOCK: {
+				System.out.println("@@@ receive RESPONSE_BLOCK");
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
