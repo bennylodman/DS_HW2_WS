@@ -222,6 +222,7 @@ public class ServerThread extends Thread {
             if(path != null)
             {
                 /*BlockHeader was added to chain*/
+            	System.out.println("@@@Added block to: " +path);
 
                 /*Update block depth and name*/
             	String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
@@ -250,6 +251,7 @@ public class ServerThread extends Thread {
             }else
             {
                 /*BlockHeader was not added to chain*/
+            	System.out.println("@@@Failed to add block");
 
                 /*Need find out what are the missing blocks*/
                 try {
@@ -261,6 +263,7 @@ public class ServerThread extends Thread {
                     assert(false);
                 }
                 assert (missingBlockList.size() != 0);
+                System.out.println("@@@Missing blocks: " + missingBlockList);
 
                 /*Request and handle all missing blocks*/
                 try {

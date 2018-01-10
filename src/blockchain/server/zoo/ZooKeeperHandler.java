@@ -10,9 +10,10 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
 
+
 // this class will handle all work with the zookeeper server
 public class ZooKeeperHandler implements Watcher {
-	public static String ZK_ADDR = "192.168.14.59:2181,192.168.14.78:2181";
+	public static String ZK_ADDR = "192.168.1.29:2181,192.168.1.21:2181";
 	public static int ZK_PORT = 2181;
 
 	private static ZooKeeper zk;
@@ -149,11 +150,13 @@ public class ZooKeeperHandler implements Watcher {
 		{
 			return blockList;
 		}
+		System.out.println("@@@suffix of path: " + suffixPath);
 		String[] parts = suffixPath.split("/");
+		System.out.println("@@@suffix array: " + parts);
 		for(int i=1; i<parts.length; i++)
 		{
-			currentPath.concat("/");
-			currentPath.concat(parts[i]);
+			currentPath = currentPath.concat("/");
+			currentPath = currentPath.concat(parts[i]);
 			blockList.add(ZookeeperUtils.getNodeData(zk, currentPath));
 		}
 		return blockList;
