@@ -142,10 +142,24 @@ public class ServerThread extends Thread {
 		Integer serversGotTheBlock = 0;
 		List<String> serversName;
 		List<SupplyChainMessage> responseList;
+		
+		serversName = DsTechShipping.getZooKeeperHandler().getServerNames();
+		serversName.remove(DsTechShipping.groupServers.getServerName());
+		
+		if(serversName.size() < DsTechShipping.MaxServersCrushSupport)
+		{
+			System.out.println("@@@Need to fail - to few servers are alive");
+			return false;
+			/*To many servers have failed and cant continue operate*/
+		}
 
+		
 		/*Send publish message to all*/
 		DsTechShipping.groupServers.publishBlock(msg);
 
+		/*If not enough servers - dont even try to send*/
+		
+		
 		/*while we have not got the amount of ack needed  to continue */
 		while(serversGotTheBlock < DsTechShipping.MaxServersCrushSupport)
 		{
