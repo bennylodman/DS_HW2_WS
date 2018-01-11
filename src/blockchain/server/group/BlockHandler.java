@@ -3,6 +3,8 @@ package blockchain.server.group;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Status;
+
 import blockchain.server.DsTechShipping;
 import blockchain.server.model.Container;
 import blockchain.server.model.Item;
@@ -34,22 +36,24 @@ public class BlockHandler {
 		
 		while (!waitingObj.isDone()) {
 			waitingObj.lock();
+			System.out.println("@@@@ thread " +  Thread.currentThread().getId() + "wake up");
 		}
 		
 		return waitingObj.getResult();
 	}
 	
-	public void notifyTransaction(int transIndex, boolean resStatus, String resMessage) {
+	public void notifyTransaction(int transIndex, boolean resStatus, String resMessage, Status errorCode) {
 		scMessage.getBlock().removeTransactione(transIndex);
 		WaitingObject waitingObj = waitingThreadObjects.get(transIndex);
 		waitingThreadObjects.remove(transIndex);
-		waitingObj.setResult(resStatus, resMessage);
+		waitingObj.setResult(resStatus, resMessage, errorCode);
 		waitingObj.notifyWaitingThread();
 	}
 
 	public void notifySuccessToAll() {
-		for (int i=0; i < waitingThreadObjects.size(); i++) {
-			this.notifyTransaction(i, true, "O.K");
+		for (int i = waitingThreadObjects.size() - 1; i >= 0; i--) {
+			System.out.println("@@@@ waking thread at index: " + i);
+			this.notifyTransaction(i, true, "O.K", Status.OK);
 		}
 	}
 
@@ -58,6 +62,15 @@ public class BlockHandler {
 	}
 	
 	
+	//TODO: delete 2 functions
+	public List<WaitingObject> getWaitingThreadObjects() {
+		return waitingThreadObjects;
+	}
+
+	public void setWaitingThreadObjects(List<WaitingObject> waitingThreadObjects) {
+		this.waitingThreadObjects = waitingThreadObjects;
+	}
+
 	//This operation not lock the view database because this view is a local copy of the current view, which accessed only by on thread.
 	public void verifyBlock(SupplyChainView view) {
 		List<Transaction> transList = this.scMessage.getBlock().getTransactions();
@@ -68,7 +81,7 @@ public class BlockHandler {
 			Transaction trans = transList.get(i);
 			
 			if (!view.hasObject(trans.getObjectId()) && trans.getOperationType() != Operation.CREATE) {
-				notifyTransaction(i, false, "ERROR: The system does not contain an object with ID: " + trans.getObjectId());
+				notifyTransaction(i, false, "ERROR: The system does not contain an object with ID: " + trans.getObjectId(), Status.NOT_FOUND);
 				i--;
 				discountSize++;
 				continue;
@@ -116,7 +129,7 @@ public class BlockHandler {
 			}
 			
 			if (!res.getStatus()) {
-				notifyTransaction(i, res.getStatus(), res.getMessage());
+				notifyTransaction(i, res.getStatus(), res.getMessage(), res.getErrorCode());
 				i--;
 				discountSize++;
 			}
@@ -140,18 +153,14 @@ class WaitingObject {
 		this.done = false;
 	}
 	
-//	public Object getLock() {
-//		return lock;
-//	}
-//	
 	public TransactionResult getResult() {
 		return result;
 	}
 	
 	public void notifyWaitingThread() {
 		synchronized (this.lock) {
-			this.lock.notifyAll();
 			this.done = true;
+			this.lock.notifyAll();
 		}
 	}
 	
@@ -167,9 +176,10 @@ class WaitingObject {
 		}
 	}
 	
-	public void setResult(boolean status, String message) {
+	public void setResult(boolean status, String message, Status errorCode) {
 		this.result.setStatus(status);
 		this.result.setMessage(message);
+		this.result.setErrorCode(errorCode);
 	}
 	
 	public void setResultStatus(boolean status) {
