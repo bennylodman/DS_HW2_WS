@@ -58,19 +58,21 @@ public class ZookeeperUtils {
 	}
 
 	/**
-	 * created  znode after the node which specified at 'path'
 	 *
 	 * @param path - path to the znode which we want to remove
 	 *
 	 */
-	public static void removeZNode(ZooKeeper zk, String path) throws KeeperException, InterruptedException {
-		List<String> children = zk.getChildren(path, null);
-		for(String child : children)
-		{
-			removeZNode(zk, path + "/" + child);
+	public static void removeZNode(ZooKeeper zk, String path){		
+		try {
+			List<String> children = zk.getChildren(path, null);
+			for(String child : children)
+			{
+				removeZNode(zk, path + "/" + child);
+			}
+			
+			zk.delete(path, zk.exists(path,true).getVersion());
+		} catch (InterruptedException | KeeperException e) {
 		}
-		
-		zk.delete(path, zk.exists(path,true).getVersion());
 	}
 	
 

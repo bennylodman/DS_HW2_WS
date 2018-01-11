@@ -9,6 +9,11 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
+import com.google.gson.Gson;
+
+import blockchain.server.group.BlockHandler;
+import blockchain.server.model.BlockHeader;
+
 
 
 // this class will handle all work with the zookeeper server
@@ -72,23 +77,21 @@ public class ZooKeeperHandler implements Watcher {
 
 	 *
 	 */
-	public void removeBlockFromBlockChain(String path, String data, int depth)throws KeeperException, InterruptedException
+	public void removeBlockFromBlockChain(String path)throws KeeperException, InterruptedException
 	{
-		List<String> sonList = ZookeeperUtils.getAllChildrens(zk, path);
-		String blocksData = null;
-		for (String son : sonList)
-		{
-			blocksData = ZookeeperUtils.getNodeData(zk, path + "/" + son);
-			/*It is necessary in order to make sure that some one else didn't removed it and added new one
-			* must check block id + server that created him is matching*/
-			System.out.println("@@@Try to remove node in path:" + path + "/" + son);
-			if (data.equals(blocksData))
-			{
-				ZookeeperUtils.removeZNode(zk, path + "/" + son);
-				return;
-			}
-		}
-		return;
+//		List<String> sonList = ZookeeperUtils.getAllChildrens(zk, path);
+//		String blocksData = null;
+//		for (String son : sonList)
+//		{
+//			blocksData = ZookeeperUtils.getNodeData(zk, path + "/" + son);
+//			/*It is necessary in order to make sure that some one else didn't removed it and added new one
+//			* must check block id + server that created him is matching*/
+//			System.out.println("@@@Try to remove node in path:" + path + "/" + son);
+//			ZookeeperUtils.removeZNode(zk, path + "/" + son);
+//		}
+//		return;
+		
+		ZookeeperUtils.removeZNode(zk, path);
 	}
 
 	/**
@@ -136,10 +139,12 @@ public class ZooKeeperHandler implements Watcher {
 	 *
 	 * @param path - server name
 	 */
-	public List<String> getAllTheNextBlocks(String path)throws KeeperException, InterruptedException
+	public List<BlockHeader> getAllTheNextBlocks(String path)throws KeeperException, InterruptedException
 	{
-		List<String> blockList = new ArrayList<>();
+		Gson gson = new Gson();
+		List<BlockHeader> blockList = new ArrayList<>();
 		String currentPath = new String(path);
+		BlockHeader blockHeader = null;
 
 		String suffixPath = getCahinSuffix(path);
 		if(suffixPath.equals(""))
@@ -153,7 +158,9 @@ public class ZooKeeperHandler implements Watcher {
 		{
 			currentPath = currentPath.concat("/");
 			currentPath = currentPath.concat(parts[i]);
-			blockList.add(ZookeeperUtils.getNodeData(zk, currentPath));
+			blockHeader = gson.fromJson(ZookeeperUtils.getNodeData(zk, currentPath), BlockHeader.class);
+			blockHeader.setBlockName(parts[i]);
+			blockList.add(blockHeader);
 		}
 		return blockList;
 	}

@@ -25,7 +25,7 @@ import blockchain.server.zoo.ZooKeeperHandler;
 
 public class DsTechShipping {
 
-	public static Integer MaxServersCrushSupport = 0;
+	public static Integer MaxServersCrushSupport = 2;
 	public static ZooKeeperHandler zkHandler = new ZooKeeperHandler();
 	public static GroupServers groupServers;
 	public static SupplyChainView view = new SupplyChainView();

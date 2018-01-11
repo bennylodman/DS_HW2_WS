@@ -48,6 +48,13 @@ public class BlockHandler {
 		waitingObj.setResult(resStatus, resMessage, errorCode);
 		waitingObj.notifyWaitingThread();
 	}
+	
+	public void notifyFailureToAll(String msg){
+		for (int i = waitingThreadObjects.size() - 1; i >= 0; i--) {
+			System.out.println("@@@@ waking thread at index: " + i);
+			this.notifyTransaction(i, false, msg, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	public void notifySuccessToAll() {
 		for (int i = waitingThreadObjects.size() - 1; i >= 0; i--) {

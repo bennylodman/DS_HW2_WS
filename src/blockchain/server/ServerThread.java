@@ -6,6 +6,8 @@ import blockchain.server.group.UpdateViewHandler;
 import blockchain.server.model.BlockHeader;
 import blockchain.server.model.SupplyChainMessage;
 import blockchain.server.model.SupplyChainView;
+import blockchain.server.zoo.ZookeeperUtils;
+
 import com.google.gson.Gson;
 import org.apache.zookeeper.KeeperException;
 
@@ -50,18 +52,15 @@ public class ServerThread extends Thread {
 	}
 
 	/*The function receive sorted list of missing blocks */
-	private void handleMissingBlock(List<String> missingBlockList, Boolean isNewServerFlag) throws KeeperException, InterruptedException {
-		BlockHeader block = null;
+	private void handleMissingBlock(String knownBlocksPath, List<BlockHeader> missingBlockList, Boolean isNewServerFlag) throws KeeperException, InterruptedException {
 		List<SupplyChainMessage> responseList = null;
 		List<String> serversNames = null;
 		List<String> serversNamesBeforeRequest = null;
 		Boolean waitForBlock = true;
 		System.out.println("@@@handleMissingBlock");
 		long maxTime; 
-		for(String blockString : missingBlockList)
-		{
-			block = gson.fromJson(blockString, BlockHeader.class);
-
+		for(BlockHeader block : missingBlockList)
+		{			
 			maxTime = System.currentTimeMillis();
 			maxTime += WaitTimeForServerToRecieveBlock; 
 			/*Loop while server that created the block is alive or if got the message*/
@@ -124,8 +123,8 @@ public class ServerThread extends Thread {
 					{
 						/*All optional servers returned negative ack
 						 * Block does not exist eny more -> remove it from block chain*/
-						DsTechShipping.zkHandler.removeBlockFromBlockChain(DsTechShipping.getBlockChainView().getKnownBlocksPath(), blockString, block.getDepth()-1);
-						
+						//DsTechShipping.zkHandler.removeBlockFromBlockChain(DsTechShipping.getBlockChainView().getKnownBlocksPath());
+						DsTechShipping.zkHandler.removeBlockFromBlockChain(knownBlocksPath + "/" + block.getBlockName());				
 						return;
 					}
 
@@ -138,7 +137,7 @@ public class ServerThread extends Thread {
 	}
 
 	/*Send to all servers the new block and wait to MaxServersCrushSupport + update yourself*/
-	private void updateServersWithNewBlock( BlockHandler blockToAddTheChain) throws KeeperException, InterruptedException {
+	private Boolean updateServersWithNewBlock( BlockHandler blockToAddTheChain) throws KeeperException, InterruptedException {
 		SupplyChainMessage msg = blockToAddTheChain.getScMessage();
 		Integer serversGotTheBlock = 0;
 		List<String> serversName;
@@ -158,7 +157,8 @@ public class ServerThread extends Thread {
 
 			if(serversName.size() < DsTechShipping.MaxServersCrushSupport)
 			{
-				assert (false);
+				System.out.println("@@@Need to fail - to few servers are alive");
+				return false;
 				/*To many servers have failed and cant continue operate*/
 			}
 
@@ -174,18 +174,19 @@ public class ServerThread extends Thread {
 		}
 
 		/*There is minimal amount of servers that know the new block*/
+		return true;
 	}
 
 
 	private void checkAndUpdateMissingBlocks(String knownBlocksPath, boolean notWaitForCraetor) {
-		List<String> missingBlockList = null;
+		List<BlockHeader> missingBlockList = null;
 
 		/*Need find out what are the missing blocks*/
 		try {
 			System.out.println("checkAndUpdateMissingBlocks after");
 			missingBlockList = DsTechShipping.zkHandler.getAllTheNextBlocks(knownBlocksPath);
 			if(!missingBlockList.isEmpty())
-				handleMissingBlock(missingBlockList, notWaitForCraetor);
+				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);
 			
 		} catch (KeeperException | InterruptedException e) {
 			e.printStackTrace();
@@ -275,7 +276,15 @@ public class ServerThread extends Thread {
 				
 				/*Send to all servers the new block and wait to MaxServersCrushSupport + update yourself*/
 				try {
-					updateServersWithNewBlock(blockToAddTheChain); //TODO uncomment
+					if(!updateServersWithNewBlock(blockToAddTheChain))
+					{
+						System.out.println("Log:: error - Not enough servers in the system");
+						blockToAddTheChain.notifyFailureToAll("error - Not enough servers in the system");
+						DsTechShipping.getZooKeeperHandler().removeBlockFromBlockChain(path);
+						blockToAddTheChain = null;
+						continue;
+						
+					}
 				} catch (KeeperException | InterruptedException e) {
 					e.printStackTrace();
 				}

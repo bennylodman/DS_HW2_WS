@@ -28,6 +28,7 @@ public class SupplyChainView {
 		this.knownBlocksPath = knownBlocksPath;
 		this.knownBlocksDepth = knownBlocksDepth;
 		blockChain = new ArrayList<>();
+		waitingBlocks = new HashMap<>();
 	}
 	
 	public ReadersWritersLock getRWLock() {
