@@ -29,7 +29,7 @@ public class RequestBlockHandler extends Thread {
 		resopnse.setTargetName(message.getSendersName());
 		resopnse.setSendersName(serverName);
 		resopnse.setArgs(message.getArgs());
-		
+		System.out.println("RequestBlockHandler " +  gson.toJson(block));
     	if (block == null) {
     		resopnse.setBlock(null);
     	} else {
@@ -38,6 +38,7 @@ public class RequestBlockHandler extends Thread {
     	
     	try {
 			synchronized (channel) {
+				System.out.println("@@@ Send RESPONSE_BLOCK");
 				channel.send(new Message(null, gson.toJson(resopnse)));
 			}
 		} catch (Exception e) {

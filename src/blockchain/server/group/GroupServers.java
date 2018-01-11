@@ -1,23 +1,15 @@
 package blockchain.server.group;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import com.google.gson.Gson;
 
 import blockchain.server.DsTechShipping;
@@ -43,7 +35,7 @@ public class GroupServers extends ReceiverAdapter {
 		this.rStack = new ResponseStack();
 		this.view = view;
 		try {
-			channel = new JChannel("C:/workspace/Java/DS_HW2_WS/WebContent/WEB-INF/config/tcp.xml");
+			channel = new JChannel("C:/git/DS_HW2_WS/WebContent/WEB-INF/config/tcp.xml");
 			channel.setReceiver(this);
 			channel.connect("GroupServers");
 			channel.getState(null, 10000);
@@ -105,7 +97,7 @@ public class GroupServers extends ReceiverAdapter {
 			case PUBLISHE_BLOCK: {
 				System.out.println("@@@ receive PUBLISHE_BLOCK");
 				if (!scMessage.getSendersName().equals(serverName))
-					new UpdateViewHandler(view, scMessage, channel, serverName, DsTechShipping.zkHandler).start();
+					new UpdateViewHandler(view, scMessage, channel, serverName, DsTechShipping.zkHandler, true).start();
 				break;
 			}
 			

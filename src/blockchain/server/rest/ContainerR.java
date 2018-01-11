@@ -1,5 +1,6 @@
 package blockchain.server.rest;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -85,11 +86,22 @@ public class ContainerR {
 	}
 	
 	@PUT
-	@Path("/{containerId}/create")
+	@Path("/{containerId}")
 	public Response creteShip(@PathParam("containerId") String containerId, @QueryParam("dst") String dst) {
 		TransactionResult tr = DsTechShipping.createContainer(containerId, dst);
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Created succesfully", MediaType.TEXT_PLAIN).build();
+		} else {
+			return Response.status(tr.getErrorCode()).entity(tr.getMessage()).build();
+		}
+	}
+	
+	@DELETE
+	@Path("/{containerId}")
+	public Response deleteShip(@PathParam("containerId") String containerId) {
+		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(containerId);
+		if (tr.getStatus()) {
+			return Response.ok(containerId + " Deleted", MediaType.TEXT_PLAIN).build();
 		} else {
 			return Response.status(tr.getErrorCode()).entity(tr.getMessage()).build();
 		}
@@ -116,18 +128,9 @@ public class ContainerR {
 				return Response.status(tr.getErrorCode()).entity(tr.getMessage()).build();
 			}
 		}
-		if(action.equals("delete"))
-		{
-			TransactionResult tr = DsTechShipping.deleteSupplyChainObject(containerId);
-			if (tr.getStatus()) {
-				return Response.ok(containerId + " Deleted", MediaType.TEXT_PLAIN).build();
-			} else {
-				return Response.status(tr.getErrorCode()).entity(tr.getMessage()).build();
-			}
-		}
 		else
 		{
-			return Response.status( Response.Status.BAD_REQUEST).entity(action + " is illegal action (options: move / delete)").build(); 
+			return Response.status( Response.Status.BAD_REQUEST).entity(action + " is illegal action (options: move)").build(); 
 		}
 
 	}

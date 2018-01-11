@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import blockchain.server.group.BlockHandler;
 import blockchain.server.group.GroupServers;
@@ -24,27 +25,14 @@ import blockchain.server.zoo.ZooKeeperHandler;
 
 public class DsTechShipping {
 
-	public static Integer MaxServersCrushSupport = 1;
+	public static Integer MaxServersCrushSupport = 0;
 	public static ZooKeeperHandler zkHandler = new ZooKeeperHandler();
 	public static GroupServers groupServers;
 	public static SupplyChainView view = new SupplyChainView();
 	public static BlockHandler blocksHandler = new BlockHandler(); 
 	public static Object blockHandlerLock = new Object();
+	public static JsonObject appConfiguration;
 
-//	static {
-//		DsTechShipping.groupServers = new GroupServers(view);
-//		new ServerThread().start();
-//	}
-	
-//	public static void initialize() {
-//	try {
-//		DsTechShipping.groupServers = new GroupServers(view);
-//		DsTechShipping.zkHandler.addServer(DsTechShipping.groupServers.getServerName());
-//		new ServerThread().start();
-//	} catch (KeeperException | InterruptedException e) {
-//		e.printStackTrace();
-//	}
-	
 	public static ZooKeeperHandler getZooKeeperHandler() {
 		return zkHandler;
 	}

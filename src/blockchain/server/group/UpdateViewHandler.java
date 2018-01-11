@@ -16,32 +16,39 @@ public class UpdateViewHandler extends Thread {
 	private JChannel channel;
 	private String serverName;
 	private ZooKeeperHandler zkh;
+	private boolean sendAck;
+	
 	private Gson gson = new Gson();
 	private static Object waitingPoint = new Object();
 	
-	public UpdateViewHandler(SupplyChainView view, SupplyChainMessage message, JChannel channel, String serverName, ZooKeeperHandler zkh) {
+	public UpdateViewHandler(SupplyChainView view, SupplyChainMessage message, JChannel channel, String serverName, ZooKeeperHandler zkh, boolean sendAck) {
 		this.view = view;
 		this.message = message;
 		this.channel = channel;
 		this.serverName = serverName;
 		this.zkh = zkh;
+		this.sendAck = sendAck;
 	}
 	
     public void run() {
     	
     	// send Ack
-		SupplyChainMessage resopnse = new SupplyChainMessage(MessageType.ACK);
-		resopnse.setTargetName(message.getSendersName());
-		resopnse.setSendersName(serverName);
-		resopnse.setArgs(String.valueOf(message.getBlock().getDepth()));
-		
-    	try {
-			synchronized (channel) {
-				channel.send(new Message(null, gson.toJson(resopnse)));
-			}
-		} catch (Exception e) {
-			System.out.println("RequestBlockHandler: failed to send message. error: " + e.getMessage());
-		}
+    	if (sendAck) {
+    		SupplyChainMessage resopnse = new SupplyChainMessage(MessageType.ACK);
+    		resopnse.setTargetName(message.getSendersName());
+    		resopnse.setSendersName(serverName);
+    		resopnse.setArgs(String.valueOf(message.getBlock().getDepth()));
+    		
+        	try {
+    			synchronized (channel) {
+    				System.out.println("@@@ Send ACK");
+    				channel.send(new Message(null, gson.toJson(resopnse)));
+    			}
+    		} catch (Exception e) {
+    			System.out.println("RequestBlockHandler: failed to send message. error: " + e.getMessage());
+    		}
+    	}
+
     	
     	synchronized(waitingPoint) {
     		// update local view.
