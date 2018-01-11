@@ -87,7 +87,9 @@ public class ContainerR {
 	
 	@PUT
 	@Path("/{containerId}")
-	public Response creteShip(@PathParam("containerId") String containerId, @QueryParam("dst") String dst) {
+	public Response creteContainer(@PathParam("containerId") String containerId, @QueryParam("dst") String dst) {
+		if(dst == null)
+			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createContainer(containerId, dst);
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Created succesfully", MediaType.TEXT_PLAIN).build();
@@ -98,7 +100,7 @@ public class ContainerR {
 	
 	@DELETE
 	@Path("/{containerId}")
-	public Response deleteShip(@PathParam("containerId") String containerId) {
+	public Response deleteContainer(@PathParam("containerId") String containerId) {
 		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(containerId);
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Deleted", MediaType.TEXT_PLAIN).build();
@@ -109,7 +111,7 @@ public class ContainerR {
 	
 	@POST
 	@Path("/{containerId}/transactions")
-	public Response creteItem(
+	public Response itemTransaction(
 			@PathParam("containerId") String containerId, 
 			@QueryParam("action") String action,
 			@DefaultValue("") @QueryParam("src") String src,

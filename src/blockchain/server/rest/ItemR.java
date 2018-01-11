@@ -88,6 +88,8 @@ public class ItemR {
 	@PUT
 	@Path("/{itemId}")
 	public Response creteItem(@PathParam("itemId") String itemId, @QueryParam("dst") String dst) {
+		if(dst == null)
+			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createItem(itemId, dst);
 		if (tr.getStatus()) {
 			return Response.ok(itemId + " Created succesfully", MediaType.TEXT_PLAIN).build();
@@ -109,7 +111,7 @@ public class ItemR {
 	
 	@POST
 	@Path("/{itemId}/transactions")
-	public Response creteItem(
+	public Response itemTransaction(
 			@PathParam("itemId") String itemId, 
 			@QueryParam("action") String action,
 			@DefaultValue("") @QueryParam("src") String src,
