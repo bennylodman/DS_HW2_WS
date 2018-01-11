@@ -8,7 +8,7 @@ import blockchain.server.group.GroupServers;
 
 @ApplicationPath("/")
 public class AppInitialization extends ResourceConfig {
-	
+
 	public AppInitialization() {
 		DsTechShipping.groupServers = new GroupServers(DsTechShipping.view);
 		new ServerThread().start();

@@ -6,19 +6,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import blockchain.server.DsTechShipping;
 import blockchain.server.model.SupplyChainObject;
 import blockchain.server.utils.ReadersWritersLock;
 
 public class SupplyChainView {
-	public Map<String, List<SupplyChainObject>> getSystemObjects() {
-		return systemObjects;
-	}
-
 	private Map<String, List<SupplyChainObject>> systemObjects;
 	private String knownBlocksPath;
 	private int knownBlocksDepth;
 	private List<Block> blockChain;
 	private ReadersWritersLock rwl;
+	private Map<Integer, Block> waitingBlocks;
 	
 	public SupplyChainView() {
 		this(0, "/Blockchain");
@@ -55,20 +53,56 @@ public class SupplyChainView {
 		rwl.releaseRead();
 		return res;
 	}
+	
+	public boolean addToWaitingBlocks(Block block) {
+		rwl.acquireWrite();
+		boolean res = false;
+		if (!waitingBlocks.containsKey(block.getDepth())) {
+			waitingBlocks.put(block.getDepth(), block);
+			res = true;
+		}
+		rwl.releaseWrite();
+		return res;
+	}
+	
+	public void removeFromWaitingBlocks(Block block) {
+		rwl.acquireWrite();
+		if (waitingBlocks.containsKey(block.getDepth())) {
+			waitingBlocks.remove(block.getDepth());
+		}
+		rwl.releaseWrite();
+	}
 
+	// Assumes that called when write lock acquired
 	public void addToBlockChain(Block block) {
-//		rwl.acquireWrite();
 		if (block.getDepth() != this.knownBlocksDepth + 1) {
-//			rwl.releaseWrite();
 			return;
 		}
-			
+		if (waitingBlocks.containsKey(block.getDepth())) {
+			waitingBlocks.remove(block.getDepth());
+		}
 		blockChain.add(block.deepCopy());
 		knownBlocksPath = knownBlocksPath + "/" + block.getBlockName();
 		this.knownBlocksDepth++;
-//		rwl.releaseWrite();
 	}
 	
+	
+	public Block getFromBlockChainAndWaitinqQueue(int depth)
+	{
+		rwl.acquireRead();
+		if ((blockChain.size() < depth) && waitingBlocks.containsKey(depth)) {
+			rwl.releaseRead();
+			return null;
+		}
+			
+		Block blok = blockChain.get(depth - 1);
+		if(blok == null)
+		{
+			blok = waitingBlocks.get(depth);
+		}
+		rwl.releaseRead();
+		return blok;
+	}
 	
 	public Block getFromBlockChain(int depth) {
 		rwl.acquireRead();
@@ -93,7 +127,10 @@ public class SupplyChainView {
 	}
 	
 	public boolean hasObject(String id) {
-		return systemObjects.containsKey(id);
+		rwl.acquireRead();
+		boolean res = systemObjects.containsKey(id);
+		rwl.releaseRead();
+		return res;
 	}
 	
 	public SupplyChainObject getObjectState(String id) {

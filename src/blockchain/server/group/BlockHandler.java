@@ -38,7 +38,6 @@ public class BlockHandler {
 			waitingObj.lock();
 			System.out.println("@@@@ thread " +  Thread.currentThread().getId() + "wake up");
 		}
-		
 		return waitingObj.getResult();
 	}
 	

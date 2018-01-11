@@ -72,7 +72,7 @@ public class ServerThread extends Thread {
 			}
 
 			/*Check if already have this block*/
-			if (DsTechShipping.view.getSystemObjects().containsKey(block))
+			if (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null)
 			{
 				continue;
 			}
@@ -125,6 +125,7 @@ public class ServerThread extends Thread {
 						/*All optional servers returned negative ack
 						 * Block does not exist eny more -> remove it from block chain*/
 						DsTechShipping.zkHandler.removeBlockFromBlockChain(DsTechShipping.getBlockChainView().getKnownBlocksPath(), blockString, block.getDepth()-1);
+						
 						return;
 					}
 
@@ -225,6 +226,8 @@ public class ServerThread extends Thread {
 				goToSleep();
 				continue;
 			}
+			System.out.println("@@@ adding block - start: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
+			
 			/*Lock Global view for read - does not change during build of current view*/
 			DsTechShipping.view.getRWLock().acquireRead();
 
@@ -237,6 +240,8 @@ public class ServerThread extends Thread {
 			/*Verify that block is legal - after this function need to check that it is not empty*/
 			blockToAddTheChain.verifyBlock(currentView);
 			/*Check if block empty (All transactions were illegal) -> finish loop and wait for next cycle*/
+			System.out.println("@@@ adding block - after verify: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
+			System.out.println("@@@ adding block - after verify - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
 			if(blockToAddTheChain.size() == 0)
 			{
 				//                blockToAddTheChain = null;
@@ -264,13 +269,17 @@ public class ServerThread extends Thread {
 				String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
 				blockToAddTheChain.getScMessage().getBlock().setDepth(currentView.getKnownBlocksDepth() + 1);
 				blockToAddTheChain.getScMessage().getBlock().setBlockName(currentNodeName);
-
+				blockToAddTheChain.getScMessage().setSendersName(DsTechShipping.getGroupServers().getServerName());
+				
 				/*Send to all servers the new block and wait to MaxServersCrushSupport + update yourself*/
 				try {
-					updateServersWithNewBlock(blockToAddTheChain);
+					updateServersWithNewBlock(blockToAddTheChain); //TODO uncomment
 				} catch (KeeperException | InterruptedException e) {
 					e.printStackTrace();
 				}
+				
+				System.out.println("@@@ adding block - after updateServersWithNewBlock: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
+				System.out.println("@@@ adding block - after updateServersWithNewBlock - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
 
 				/*Update view to have the new block*/
 				/*Will happen on its own but cant wake up the REST threads
@@ -278,6 +287,11 @@ public class ServerThread extends Thread {
 				new UpdateViewHandler(DsTechShipping.view, blockToAddTheChain.getScMessage(), DsTechShipping.groupServers.getChannel(), DsTechShipping.groupServers.getServerName(), DsTechShipping.zkHandler, false).run();
 
 				/*Wakeup all REST threads and return that trnsactions happens*/
+				
+				System.out.println("@@@ adding block - before notifySuccessToAll: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
+				System.out.println("@@@ adding block - before notifySuccessToAll - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
+
+				
 				blockToAddTheChain.notifySuccessToAll();
 				blockToAddTheChain = null;
 				//                goToSleep();

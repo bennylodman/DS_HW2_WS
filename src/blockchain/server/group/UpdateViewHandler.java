@@ -6,6 +6,7 @@ import org.jgroups.Message;
 
 import com.google.gson.Gson;
 
+import blockchain.server.DsTechShipping;
 import blockchain.server.model.SupplyChainMessage;
 import blockchain.server.model.SupplyChainView;
 import blockchain.server.zoo.ZooKeeperHandler;
@@ -31,7 +32,9 @@ public class UpdateViewHandler extends Thread {
 	}
 	
     public void run() {
-    	
+    	if (!view.addToWaitingBlocks(message.getBlock()))
+    		return;
+    		
     	// send Ack
     	if (sendAck) {
     		SupplyChainMessage resopnse = new SupplyChainMessage(MessageType.ACK);
@@ -69,27 +72,30 @@ public class UpdateViewHandler extends Thread {
                 }
         		System.out.println("@@@UpdateViewHandler - sync4");
                 view.getRWLock().acquireWrite();
-                System.out.println("@@@ WRITE LOCKED 1");
-                boolean isExsit;
-                try {
-    				isExsit = zkh.checkIfServerExist(message.getSendersName());
-    				System.out.println("@@@ WRITE LOCKED 2");
-    			} catch (KeeperException | InterruptedException e) {
-    				isExsit = false;
-    			}
+//                System.out.println("@@@ WRITE LOCKED 1");
+//                boolean isExsit;
+//                try {
+//                	System.out.println("@@@ message.getSendersName(): " + message.getSendersName());
+//                	System.out.println("@@@ DsTechShipping.groupServers.getServerName(): " + DsTechShipping.groupServers.getServerName());
+//    				isExsit = zkh.checkIfServerExist(message.getSendersName());
+//    				System.out.println("@@@ WRITE LOCKED 2");
+//    			} catch (KeeperException | InterruptedException e) {
+//    				isExsit = false;
+//    			}
                 System.out.println("@@@ WRITE LOCKED 3");
-                if (isExsit) {
+//                if (isExsit) {
                 	System.out.println("@@@ WRITE LOCKED 4");
                 	message.getBlock().applyTransactions(view);
                 	System.out.println("@@@ WRITE LOCKED 5");
                     view.addToBlockChain(message.getBlock());
                     System.out.println("@@@ WRITE LOCKED 6");
-                }
+//                }
                 System.out.println("@@@ WRITE LOCKED 7");
                 waitingPoint.notifyAll();
                 System.out.println("@@@ WRITE LOCKED 8");
                 view.getRWLock().releaseWrite();
             }
     	}
+    	view.removeFromWaitingBlocks(message.getBlock());
     }
 }
