@@ -151,6 +151,8 @@ public class ServerThread extends Thread {
 		while(serversGotTheBlock < DsTechShipping.MaxServersCrushSupport)
 		{
 			serversName = DsTechShipping.getZooKeeperHandler().getServerNames();
+			serversName.remove(DsTechShipping.groupServers.getServerName());
+			
 			serversGotTheBlock = 0;
 			responseList = DsTechShipping.groupServers.waitForResponse();
 
