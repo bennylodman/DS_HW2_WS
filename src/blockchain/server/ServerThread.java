@@ -200,10 +200,8 @@ public class ServerThread extends Thread {
 			System.out.println("checkAndUpdateMissingBlocks after");
 			missingBlockList = DsTechShipping.zkHandler.getAllTheNextBlocks(knownBlocksPath);
 			if(!missingBlockList.isEmpty())
-				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);
-			
+				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);			
 		} catch (KeeperException | InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 
