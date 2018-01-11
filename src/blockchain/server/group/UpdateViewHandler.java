@@ -52,27 +52,42 @@ public class UpdateViewHandler extends Thread {
     	
     	synchronized(waitingPoint) {
     		// update local view.
+    		System.out.println("@@@UpdateViewHandler - sync");
         	if(message.getBlock().getDepth() > view.getKnownBlocksDepth())
             {
-                while (message.getBlock().getDepth() != view.getKnownBlocksDepth() + 1) {
+        		System.out.println("@@@UpdateViewHandler - sync 1");
+        		while (message.getBlock().getDepth() != view.getKnownBlocksDepth() + 1) {
+        			System.out.println("@@@UpdateViewHandler - sync2");
                     try {
                     	waitingPoint.wait();
+                    	if(message.getBlock().getDepth() <= view.getKnownBlocksDepth())
+                    	{
+                    		return;
+                    	}
+                    	System.out.println("@@@UpdateViewHandler - sync3");
                     } catch (InterruptedException e) {}
                 }
-                
+        		System.out.println("@@@UpdateViewHandler - sync4");
                 view.getRWLock().acquireWrite();
+                System.out.println("@@@ WRITE LOCKED 1");
                 boolean isExsit;
                 try {
     				isExsit = zkh.checkIfServerExist(message.getSendersName());
+    				System.out.println("@@@ WRITE LOCKED 2");
     			} catch (KeeperException | InterruptedException e) {
     				isExsit = false;
     			}
-                
+                System.out.println("@@@ WRITE LOCKED 3");
                 if (isExsit) {
+                	System.out.println("@@@ WRITE LOCKED 4");
                 	message.getBlock().applyTransactions(view);
+                	System.out.println("@@@ WRITE LOCKED 5");
                     view.addToBlockChain(message.getBlock());
+                    System.out.println("@@@ WRITE LOCKED 6");
                 }
+                System.out.println("@@@ WRITE LOCKED 7");
                 waitingPoint.notifyAll();
+                System.out.println("@@@ WRITE LOCKED 8");
                 view.getRWLock().releaseWrite();
             }
     	}
