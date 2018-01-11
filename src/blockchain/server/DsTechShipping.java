@@ -94,13 +94,18 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getShipState(String id) {
+		System.out.println("@@@DstechShip try to take read3 - sync");
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Ship.PREFIX))
+		if (id == null || !id.startsWith(Ship.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid ship ID");
-		
-		if (!view.hasObject(id))
+		}
+			
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		SupplyChainObject ship = view.getObjectState(id);
 		
@@ -111,11 +116,15 @@ public class DsTechShipping {
 	public static QueryResult getShipHistory(String id) {
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Ship.PREFIX))
+		if (id == null || !id.startsWith(Ship.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid ship ID");
+		}
 		
-		if (!view.hasObject(id))
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		List<SupplyChainObject> shipHist = view.getObjectHistory(id);
 		
@@ -124,13 +133,18 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getContainerState(String id) {
+		System.out.println("@@@DstechShip try to take read4 - sync");
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Container.PREFIX))
+		if (id == null || !id.startsWith(Container.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid container ID");
+		}
 		
-		if (!view.hasObject(id))
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false,Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		SupplyChainObject container = view.getObjectState(id);
 		
@@ -139,13 +153,18 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getContainerHist(String id) {
+		System.out.println("@@@DstechShip try to take read - sync5");
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Container.PREFIX))
+		if (id == null || !id.startsWith(Container.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid container ID");
-		
-		if (!view.hasObject(id))
+		}
+			
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		List<SupplyChainObject> containerHist = view.getObjectHistory(id);
 		
@@ -154,13 +173,18 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getItemState(String id) {
+		System.out.println("@@@DstechShip try to take read6 - sync");
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Item.PREFIX))
+		if (id == null || !id.startsWith(Item.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false,Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid item ID");
+		}
 		
-		if (!view.hasObject(id))
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		SupplyChainObject item = view.getObjectState(id);
 		
@@ -169,13 +193,18 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getItemHist(String id) {
+		System.out.println("@@@DstechShip try to take read2 - sync");
 		view.getRWLock().acquireRead();
 		
-		if (id == null || !id.startsWith(Item.PREFIX))
+		if (id == null || !id.startsWith(Item.PREFIX)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.BAD_REQUEST, "ERROR: " + id + " is invalid item ID");
+		}
 		
-		if (!view.hasObject(id))
+		if (!view.hasObject(id)) {
+			view.getRWLock().releaseRead();
 			return new QueryResult(false, Response.Status.NOT_FOUND, "ERROR: The system does not contain an object with ID: " + id);
+		}
 		
 		List<SupplyChainObject> itemHist = view.getObjectHistory(id);
 		
