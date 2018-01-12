@@ -27,6 +27,7 @@ public class ContainerR {
 	@Path("/{containerId}")
 	public Response getContainer(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
+		System.out.println("Log :: Rest :: Request for container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			String containerStr = gson.toJson(qr.getRequestedObjects().get(0));
 			return Response.ok(containerStr, MediaType.APPLICATION_JSON).build();
@@ -39,6 +40,7 @@ public class ContainerR {
 	@Path("/{containerId}/ship")
 	public Response getContainersShip(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
+		System.out.println("Log :: Rest :: Request for ship of container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(container.getShip(), MediaType.TEXT_PLAIN).build();
@@ -51,6 +53,7 @@ public class ContainerR {
 	@Path("/{containerId}/items")
 	public Response getContainersItems(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
+		System.out.println("Log :: Rest :: Request for items of container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(String.join(",", container.getItems()), MediaType.TEXT_PLAIN).build();
@@ -64,6 +67,7 @@ public class ContainerR {
 	@Path("/{containerId}/dock")
 	public Response getContainersDock(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
+		System.out.println("Log :: Rest :: Request for dock of container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(container.getDoc(), MediaType.TEXT_PLAIN).build();
@@ -76,6 +80,7 @@ public class ContainerR {
 	@Path("/{containerId}/history")
 	public Response getContainersHistory(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerHist(containerId); 
+		System.out.println("Log :: Rest :: Request for history container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			History history = new History(qr.getRequestedObjects());
 			String historyStr = gson.toJson(history);
@@ -91,6 +96,7 @@ public class ContainerR {
 		if(dst == null)
 			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createContainer(containerId, dst);
+		System.out.println("Log :: Rest :: Request to create container with id:" + containerId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Created succesfully", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -102,6 +108,7 @@ public class ContainerR {
 	@Path("/{containerId}")
 	public Response deleteContainer(@PathParam("containerId") String containerId) {
 		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(containerId);
+		System.out.println("Log :: Rest :: Request to Delete container with id:" + containerId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Deleted", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -124,6 +131,7 @@ public class ContainerR {
 			}
 			
 			TransactionResult tr = DsTechShipping.moveSupplyChainObject(containerId, src, dst);
+			System.out.println("Log :: Rest :: Request to move container with id:" + containerId + " from: " + src + " to: " + dst + "was received");
 			if (tr.getStatus()) {
 				return Response.ok(containerId + " Moved from " + src + " to " + dst, MediaType.TEXT_PLAIN).build();
 			} else {

@@ -36,7 +36,6 @@ public class BlockHandler {
 		
 		while (!waitingObj.isDone()) {
 			waitingObj.lock();
-			System.out.println("@@@@ thread " +  Thread.currentThread().getId() + "wake up");
 		}
 		return waitingObj.getResult();
 	}
@@ -50,15 +49,15 @@ public class BlockHandler {
 	}
 	
 	public void notifyFailureToAll(String msg){
+		System.out.println("Log :: Server :: Notify all clients of transaction faile");
 		for (int i = waitingThreadObjects.size() - 1; i >= 0; i--) {
-			System.out.println("@@@@ waking thread at index: " + i);
 			this.notifyTransaction(i, false, msg, Status.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	public void notifySuccessToAll() {
+		System.out.println("Log :: Server :: Notify all clients of transaction success");
 		for (int i = waitingThreadObjects.size() - 1; i >= 0; i--) {
-			System.out.println("@@@@ waking thread at index: " + i);
 			this.notifyTransaction(i, true, "O.K", Status.OK);
 		}
 	}

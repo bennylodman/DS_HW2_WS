@@ -20,14 +20,10 @@ public class GroupServers extends ReceiverAdapter {
 	private static int RESPONSE_WAIT_TIME = 1;
 	private static String BRODSCST = "ALL"; 
 	private Gson gson = new Gson();
-
-	
 	private JChannel channel;
 	private String serverName;
 	private SupplyChainView view;
 	private ResponseStack rStack;
-
-	
 	
 	public GroupServers(SupplyChainView view) {
 		Random rand = new Random();		
@@ -65,9 +61,10 @@ public class GroupServers extends ReceiverAdapter {
 		scMessage.setSendersName(serverName);
 		try {
 			this.channel.send(new Message(null, gson.toJson(scMessage)));
+			System.out.println("Log :: Network :: sent REQUEST_BLOCK message to all servers, request for blcok number: " + blockDepth);
 			
 		} catch (Exception e) {
-			System.out.println("requestBlock: failed to send message");
+			System.out.println("Log :: Network :: failed to send REQUEST_BLOCK message to all servers, request for blcok number: " + blockDepth);
 		}
 	}
 	
@@ -77,8 +74,9 @@ public class GroupServers extends ReceiverAdapter {
 		msg.setSendersName(serverName);
 		try {
 			this.channel.send(new Message(null, gson.toJson(msg)));
+			System.out.println("Log :: Network :: sent PUBLISHE_BLOCK message to all servers with block " + msg.getBlock().getBlockName());
 		} catch (Exception e) {
-			System.out.println("publishBlock: failed to send message");
+			System.out.println("Log :: Network :: failed to send PUBLISHE_BLOCK message to all servers with block " +  msg.getBlock().getBlockName());
 		}
 	}
 	
@@ -95,27 +93,30 @@ public class GroupServers extends ReceiverAdapter {
 		
 		switch (scMessage.getType()) {
 			case PUBLISHE_BLOCK: {
-				System.out.println("@@@ receive PUBLISHE_BLOCK");
 				if (!scMessage.getSendersName().equals(serverName))
+				{
+					System.out.println("Log :: Network :: receive PUBLISHE_BLOCK message from "+   scMessage.getSendersName() + " with block" + scMessage.getBlock().getBlockName());
 					new UpdateViewHandler(view, scMessage, channel, serverName, DsTechShipping.zkHandler, true).start();
+				}
 				break;
-			}
-			
+			}	
 			case REQUEST_BLOCK: {
-				System.out.println("@@@ receive REQUEST_BLOCK");
 				if (!scMessage.getSendersName().equals(serverName))
+				{
+					System.out.println("Log :: Network :: receive REQUEST_BLOCK message from "+   scMessage.getSendersName() + "requesting block" + scMessage.getBlock().getBlockName());
 					new RequestBlockHandler(view, scMessage, channel, serverName).start();
+				}	
 				break;
 			}
 			
 			case ACK: {
-				System.out.println("@@@ receive ACK");
+				System.out.println("Log :: Network :: receive ACK message from "+   scMessage.getSendersName() + " that received blcok" + scMessage.getBlock().getBlockName());
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
 			
 			case RESPONSE_BLOCK: {
-				System.out.println("@@@ receive RESPONSE_BLOCK: " + gson.toJson(scMessage));
+				System.out.println("Log :: Network :: receive RESPONSE_BLOCK message from "+   scMessage.getSendersName() + " with block" + scMessage.getBlock().getBlockName());
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
@@ -124,33 +125,13 @@ public class GroupServers extends ReceiverAdapter {
 	
 	
 	public void viewAccepted(View new_view) {
+		//TODO: Benny, Ask Ami what is this?
 		System.out.println("** view: " + new_view);
 	}
-
 
 	public void getState(OutputStream output) throws Exception {
 
 	}
-
 	public void setState(InputStream input) throws Exception {
-
 	}
-	
-//	public void updateTcpConfigFile(String pathToXml) {
-//
-//		try {
-//			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-//			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-//			Document doc = docBuilder.parse(pathToXml);
-//			
-//			
-//			
-//		} catch (SAXException | IOException | ParserConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		
-//
-//		
-//	}
 }

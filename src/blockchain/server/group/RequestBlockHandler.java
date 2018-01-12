@@ -24,26 +24,27 @@ public class RequestBlockHandler extends Thread {
 	}
 	
     public void run() {
-    	//Block block = view.getFromBlockChain(Integer.valueOf(message.getArgs()));
     	Block block = view.getFromBlockChainAndWaitinqQueue(Integer.valueOf(message.getArgs()));
     	SupplyChainMessage resopnse = new SupplyChainMessage(MessageType.RESPONSE_BLOCK);
+    	String log = new String();
 		resopnse.setTargetName(message.getSendersName());
 		resopnse.setSendersName(serverName);
 		resopnse.setArgs(message.getArgs());
-		System.out.println("RequestBlockHandler " +  gson.toJson(block));
     	if (block == null) {
     		resopnse.setBlock(null);
+    		log = "do not have block number " + Integer.valueOf(message.getArgs());
     	} else {
     		resopnse.setBlock(block);
-    	}
-    	
+    		log = "with block number " + Integer.valueOf(message.getArgs());
+    	}    	
     	try {
 			synchronized (channel) {
-				System.out.println("@@@ Send RESPONSE_BLOCK");
+				
+				System.out.println("Log :: send RESPONSE_BLOCK message to " + resopnse.getTargetName() + log);			
 				channel.send(new Message(null, gson.toJson(resopnse)));
 			}
-		} catch (Exception e) {
-			System.out.println("RequestBlockHandler: failed to send message. error: " + e.getMessage());
+		} catch (Exception e) {			
+			System.out.println("Log :: failed to send RESPONSE_BLOCK message. error: " + e.getMessage());
 		}
     }
 }

@@ -34,6 +34,7 @@ public class ShipR {
 	@Path("/{shipId}")
 	public Response getShip(@PathParam("shipId") String shipId) {
 		QueryResult qr = DsTechShipping.getShipState(shipId);
+		System.out.println("Log :: Rest :: Create ship with id:" + shipId + "was received");		
 		if (qr.getStatus()) {
 			String shipStr = gson.toJson(qr.getRequestedObjects().get(0));
 			return Response.ok(shipStr, MediaType.APPLICATION_JSON).build();

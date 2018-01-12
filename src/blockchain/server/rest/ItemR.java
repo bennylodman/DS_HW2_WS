@@ -28,6 +28,7 @@ public class ItemR {
 	@Path("/{itemId}")
 	public Response getItem(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemState(itemId);
+		System.out.println("Log :: Rest :: Create item with id:" + itemId + "was received");
 		if (qr.getStatus()) {
 			String itemStr = gson.toJson(qr.getRequestedObjects().get(0));
 			return Response.ok(itemStr, MediaType.APPLICATION_JSON).build();

@@ -42,7 +42,6 @@ public class ServerThread extends Thread {
 			if(msg.getType() == MessageType.RESPONSE_BLOCK && msg.getBlock() != null)
 			{
 				/*Found the needed block -> add it to view*/
-				System.out.println("@@@ before update view handler with new block " + gson.toJson(msg));
 				new UpdateViewHandler(DsTechShipping.view, msg, DsTechShipping.groupServers.getChannel(), DsTechShipping.groupServers.getServerName(), DsTechShipping.zkHandler, false).run();
 				assert(DsTechShipping.getBlockChainView().getKnownBlocksDepth() == msg.getBlock().getDepth());
 				return true;
@@ -57,7 +56,6 @@ public class ServerThread extends Thread {
 		List<String> serversNames = null;
 		List<String> serversNamesBeforeRequest = null;
 		Boolean waitForBlock = true;
-		System.out.println("@@@handleMissingBlock");
 		long maxTime; 
 		for(BlockHeader block : missingBlockList)
 		{			
@@ -67,20 +65,15 @@ public class ServerThread extends Thread {
 			while ((maxTime > System.currentTimeMillis() ) && (!isNewServerFlag) && (DsTechShipping.zkHandler.checkIfServerExist(block.getServerName())) && (DsTechShipping.view.getFromBlockChain(block.getDepth()) == null) )
 			{
 				/*Busy wait*/
-				System.out.println("@@@Waiting for block from the server that created");
 			}
-
 			/*Check if already have this block*/
 			if (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null)
 			{
+				System.out.println("Log :: Update local data base :: block  " + block.getDepth() + "is up to date");
 				continue;
 			}
-			System.out.println("@@@Before sending block request to all servers");
-
 			/*Get servers list*/
 			serversNamesBeforeRequest = DsTechShipping.zkHandler.getServerNames();
-
-			System.out.println("@@@Servers list is: " + serversNamesBeforeRequest);
 
 			/*Send request message with current block to all servers*/
 			DsTechShipping.groupServers.requestBlock(block.getDepth());
@@ -90,12 +83,12 @@ public class ServerThread extends Thread {
 			{
 				/*Get response messages*/
 				responseList = DsTechShipping.groupServers.waitForResponse();
-				System.out.println("@@@Got next messages in stack: " + gson.toJson(responseList));
 
 				if (isNeededBlockInList_InsertToView(responseList) || (DsTechShipping.view.getFromBlockChain(block.getDepth()) != null))
 				{
 					/*The server got this block*/
 					waitForBlock = false;
+					System.out.println("Log :: Update local data base :: block  " + block.getDepth() + "is up to date");
 				}
 				else
 				{
@@ -124,14 +117,13 @@ public class ServerThread extends Thread {
 						/*All optional servers returned negative ack
 						 * Block does not exist eny more -> remove it from block chain*/
 						//DsTechShipping.zkHandler.removeBlockFromBlockChain(DsTechShipping.getBlockChainView().getKnownBlocksPath());
-						DsTechShipping.zkHandler.removeBlockFromBlockChain(knownBlocksPath + "/" + block.getBlockName());				
+						DsTechShipping.zkHandler.removeBlockFromBlockChain(knownBlocksPath + "/" + block.getBlockName());	
+						System.out.println("Log :: Update local data base :: block  " + block.getBlockName() + "was removed from blockchain");
 						return;
 					}
 
 				}
 			}
-
-			System.out.println("@@@Got missing block");
 		}
 		return;
 	}
@@ -148,18 +140,16 @@ public class ServerThread extends Thread {
 		
 		if(serversName.size() < DsTechShipping.MaxServersCrushSupport)
 		{
-			System.out.println("@@@Need to fail - to few servers are alive");
+			System.out.println("Log :: New block :: System failure - Not enough servers in the system to continue");
 			return false;
 			/*To many servers have failed and cant continue operate*/
 		}
-
 		
 		/*Send publish message to all*/
 		DsTechShipping.groupServers.publishBlock(msg);
 
 		/*If not enough servers - dont even try to send*/
-		
-		
+			
 		/*while we have not got the amount of ack needed  to continue */
 		while(serversGotTheBlock < DsTechShipping.MaxServersCrushSupport)
 		{
@@ -171,7 +161,7 @@ public class ServerThread extends Thread {
 
 			if(serversName.size() < DsTechShipping.MaxServersCrushSupport)
 			{
-				System.out.println("@@@Need to fail - to few servers are alive");
+				System.out.println("Log :: New block :: System failure - Not enough servers in the system to continue");
 				return false;
 				/*To many servers have failed and cant continue operate*/
 			}
@@ -188,6 +178,7 @@ public class ServerThread extends Thread {
 		}
 
 		/*There is minimal amount of servers that know the new block*/
+		System.out.println("Log :: New block :: Block was added successfully");
 		return true;
 	}
 
@@ -197,10 +188,18 @@ public class ServerThread extends Thread {
 
 		/*Need find out what are the missing blocks*/
 		try {
-			System.out.println("checkAndUpdateMissingBlocks after");
 			missingBlockList = DsTechShipping.zkHandler.getAllTheNextBlocks(knownBlocksPath);
+			System.out.println("Log :: Update local data base :: check missing blocks");
 			if(!missingBlockList.isEmpty())
-				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);			
+			{
+				System.out.println("Log :: Update local data base :: missing blocks are: " + missingBlockList);
+				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);	
+			}
+			else
+			{
+				System.out.println("Log :: Update local data base :: no missing blocks");
+			}
+					
 		} catch (KeeperException | InterruptedException e) {
 		}
 	}
@@ -213,9 +212,11 @@ public class ServerThread extends Thread {
 		try {
 			DsTechShipping.zkHandler.addServer(DsTechShipping.groupServers.getServerName());
 		} catch (KeeperException | InterruptedException e1) {}
-
+		
+		System.out.println("Log :: Server :: Initialization :: check missing blocks");
 		checkAndUpdateMissingBlocks(DsTechShipping.view.getKnownBlocksPath(), true);
-
+		System.out.println("Log :: Server :: Initialization :: local server data updated");
+		
 		while(true)
 		{
 			/*If handel new block*/
@@ -237,12 +238,12 @@ public class ServerThread extends Thread {
 			{
 				blockToAddTheChain = null;
 				counterForBlockInsertion += SleepBetweenValidateBlockchain;
+				System.out.println("Log :: Server :: Periodic local data base update");
 				checkAndUpdateMissingBlocks(DsTechShipping.view.getKnownBlocksPath(), true);
 				goToSleep();
 				continue;
 			}
-			System.out.println("@@@ adding block - start: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
-			
+			System.out.println("Log :: Server :: Start block insertion procedure, block depth: " + blockToAddTheChain.getScMessage().getBlock().getDepth());
 			/*Lock Global view for read - does not change during build of current view*/
 			DsTechShipping.view.getRWLock().acquireRead();
 
@@ -253,14 +254,14 @@ public class ServerThread extends Thread {
 			DsTechShipping.view.getRWLock().releaseRead();
 
 			/*Verify that block is legal - after this function need to check that it is not empty*/
+			System.out.println("Log :: Server :: Start block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " verification");
+			
 			blockToAddTheChain.verifyBlock(currentView);
+			
+			
 			/*Check if block empty (All transactions were illegal) -> finish loop and wait for next cycle*/
-			System.out.println("@@@ adding block - after verify: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
-			System.out.println("@@@ adding block - after verify - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
 			if(blockToAddTheChain.size() == 0)
 			{
-				//                blockToAddTheChain = null;
-				//                goToSleep();
 				continue;
 			}
 
@@ -277,8 +278,6 @@ public class ServerThread extends Thread {
 
 			if(path != null)
 			{
-				/*BlockHeader was added to chain*/
-				System.out.println("@@@Added block to: " +path);
 
 				/*Update block depth and name*/
 				String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
@@ -286,11 +285,14 @@ public class ServerThread extends Thread {
 				blockToAddTheChain.getScMessage().getBlock().setBlockName(currentNodeName);
 				blockToAddTheChain.getScMessage().setSendersName(DsTechShipping.getGroupServers().getServerName());
 				
+				/*BlockHeader was added to chain*/
+				System.out.println("Log :: Server :: Block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " was added to global blockcahin");
+				
 				/*Send to all servers the new block and wait to MaxServersCrushSupport + update yourself*/
 				try {
 					if(!updateServersWithNewBlock(blockToAddTheChain))
 					{
-						System.out.println("Log:: error - Not enough servers in the system");
+						System.out.println("Log :: Server :: error - Not enough servers in the system");
 						blockToAddTheChain.notifyFailureToAll("error - Not enough servers in the system");
 						DsTechShipping.getZooKeeperHandler().removeBlockFromBlockChain(path);
 						blockToAddTheChain = null;
@@ -301,23 +303,16 @@ public class ServerThread extends Thread {
 					e.printStackTrace();
 				}
 				
-				System.out.println("@@@ adding block - after updateServersWithNewBlock: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
-				System.out.println("@@@ adding block - after updateServersWithNewBlock - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
-
 				/*Update view to have the new block*/
 				/*Will happen on its own but cant wake up the REST threads
 				 * until the data was updated*/
 				new UpdateViewHandler(DsTechShipping.view, blockToAddTheChain.getScMessage(), DsTechShipping.groupServers.getChannel(), DsTechShipping.groupServers.getServerName(), DsTechShipping.zkHandler, false).run();
-
+				
+				System.out.println("Log :: Server :: Block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " is accepted");
+				
 				/*Wakeup all REST threads and return that trnsactions happens*/
-				
-				System.out.println("@@@ adding block - before notifySuccessToAll: " + gson.toJson(blockToAddTheChain.getScMessage().getBlock()));
-				System.out.println("@@@ adding block - before notifySuccessToAll - num of waiting threads: " + blockToAddTheChain.getWaitingThreadObjects().size());
-
-				
 				blockToAddTheChain.notifySuccessToAll();
 				blockToAddTheChain = null;
-				//                goToSleep();
 
 			}else
 			{
