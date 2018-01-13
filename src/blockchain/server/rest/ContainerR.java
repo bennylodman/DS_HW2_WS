@@ -40,7 +40,7 @@ public class ContainerR {
 	@Path("/{containerId}/ship")
 	public Response getContainersShip(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
-		System.out.println("Log :: Rest :: Request for ship of container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request for ship of the container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(container.getShip(), MediaType.TEXT_PLAIN).build();
@@ -53,7 +53,7 @@ public class ContainerR {
 	@Path("/{containerId}/items")
 	public Response getContainersItems(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
-		System.out.println("Log :: Rest :: Request for items of container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request for items of the container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(String.join(",", container.getItems()), MediaType.TEXT_PLAIN).build();
@@ -67,7 +67,7 @@ public class ContainerR {
 	@Path("/{containerId}/dock")
 	public Response getContainersDock(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerState(containerId);
-		System.out.println("Log :: Rest :: Request for dock of container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request for dock of the container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			Container container = (Container)qr.getRequestedObjects().get(0);
 			return Response.ok(container.getDoc(), MediaType.TEXT_PLAIN).build();
@@ -80,7 +80,7 @@ public class ContainerR {
 	@Path("/{containerId}/history")
 	public Response getContainersHistory(@PathParam("containerId") String containerId) {
 		QueryResult qr = DsTechShipping.getContainerHist(containerId); 
-		System.out.println("Log :: Rest :: Request for history container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request for the history of the container with id:" + containerId + " was received");
 		if (qr.getStatus()) {
 			History history = new History(qr.getRequestedObjects());
 			String historyStr = gson.toJson(history);

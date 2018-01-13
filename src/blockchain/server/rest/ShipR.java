@@ -23,18 +23,12 @@ import blockchain.server.model.TransactionResult;
 public class ShipR {
 	
 	private Gson gson = new Gson();
-	
-	@GET
-	@Path("/ping")
-	public String ping() {
-		return "OK";
-	}
-	
+		
 	@GET
 	@Path("/{shipId}")
 	public Response getShip(@PathParam("shipId") String shipId) {
 		QueryResult qr = DsTechShipping.getShipState(shipId);
-		System.out.println("Log :: Rest :: Create ship with id:" + shipId + "was received");		
+		System.out.println("Log :: Rest :: Request for ship with id:" + shipId + " was received");
 		if (qr.getStatus()) {
 			String shipStr = gson.toJson(qr.getRequestedObjects().get(0));
 			return Response.ok(shipStr, MediaType.APPLICATION_JSON).build();
@@ -47,6 +41,7 @@ public class ShipR {
 	@Path("/{shipId}/dock")
 	public Response getShipsDock(@PathParam("shipId") String shipId) {
 		QueryResult qr = DsTechShipping.getShipState(shipId);
+		System.out.println("Log :: Rest :: Request for dock of the ship with id:" + shipId + " was received");
 		if (qr.getStatus()) {
 			Ship ship = (Ship)qr.getRequestedObjects().get(0);
 			return Response.ok(ship.getDoc(), MediaType.TEXT_PLAIN).build();
@@ -59,6 +54,7 @@ public class ShipR {
 	@Path("/{shipId}/containers")
 	public Response getShipsContainers(@PathParam("shipId") String shipId) {
 		QueryResult qr = DsTechShipping.getShipState(shipId);
+		System.out.println("Log :: Rest :: Request for containers of the ship with id:" + shipId + " was received");
 		if (qr.getStatus()) {
 			Ship ship = (Ship)qr.getRequestedObjects().get(0);
 			return Response.ok(String.join(",", ship.getContainers()), MediaType.TEXT_PLAIN).build();
@@ -71,6 +67,7 @@ public class ShipR {
 	@Path("/{shipId}/history")
 	public Response getShipsHistory(@PathParam("shipId") String shipId) {
 		QueryResult qr = DsTechShipping.getShipHistory(shipId);
+		System.out.println("Log :: Rest :: Request for the history of the ship with id:" + shipId + " was received");
 		if (qr.getStatus()) {
 			History history = new History(qr.getRequestedObjects());
 			String historyStr = gson.toJson(history);
@@ -86,6 +83,7 @@ public class ShipR {
 		if(dst == null)
 			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createShip(shipId, dst);
+		System.out.println("Log :: Rest :: Request to create ship with id:" + shipId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(shipId + " Created succesfully", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -97,6 +95,7 @@ public class ShipR {
 	@Path("/{shipId}")
 	public Response deleteShip(@PathParam("shipId") String shipId) {
 		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(shipId);
+		System.out.println("Log :: Rest :: Request to Delete ship with id:" + shipId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(shipId + " Deleted", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -119,6 +118,7 @@ public class ShipR {
 			}
 			
 			TransactionResult tr = DsTechShipping.moveSupplyChainObject(shipId, src, dst);
+			System.out.println("Log :: Rest :: Request to move ship with id:" + shipId + " from: " + src + " to: " + dst + "was received");
 			if (tr.getStatus()) {
 				return Response.ok(shipId + " Moved from " + src + " to " + dst, MediaType.TEXT_PLAIN).build();
 			} else {

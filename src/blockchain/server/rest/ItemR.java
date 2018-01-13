@@ -28,7 +28,7 @@ public class ItemR {
 	@Path("/{itemId}")
 	public Response getItem(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemState(itemId);
-		System.out.println("Log :: Rest :: Create item with id:" + itemId + "was received");
+		System.out.println("Log :: Rest :: Request for item with id:" + itemId + " was received");
 		if (qr.getStatus()) {
 			String itemStr = gson.toJson(qr.getRequestedObjects().get(0));
 			return Response.ok(itemStr, MediaType.APPLICATION_JSON).build();
@@ -41,6 +41,7 @@ public class ItemR {
 	@Path("/{itemId}/container")
 	public Response getItemsContainer(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemState(itemId);
+		System.out.println("Log :: Rest :: Request for container of the item with id:" + itemId + " was received");
 		if (qr.getStatus()) {
 			Item item = (Item)qr.getRequestedObjects().get(0);
 			return Response.ok(item.getContainer(), MediaType.TEXT_PLAIN).build();
@@ -53,6 +54,7 @@ public class ItemR {
 	@Path("/{itemId}/ship")
 	public Response getItemsShip(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemState(itemId);
+		System.out.println("Log :: Rest :: Request for ship of the item with id:" + itemId + " was received");
 		if (qr.getStatus()) {
 			Item item = (Item)qr.getRequestedObjects().get(0);
 			return Response.ok(item.getShip(), MediaType.TEXT_PLAIN).build();
@@ -65,6 +67,7 @@ public class ItemR {
 	@Path("/{itemId}/dock")
 	public Response getItemsDock(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemState(itemId);
+		System.out.println("Log :: Rest :: Request for dock of the item with id:" + itemId + " was received");
 		if (qr.getStatus()) {
 			Item item = (Item)qr.getRequestedObjects().get(0);
 			return Response.ok(item.getDoc(), MediaType.TEXT_PLAIN).build();
@@ -77,6 +80,7 @@ public class ItemR {
 	@Path("/{itemId}/history")
 	public Response getItemsHistory(@PathParam("itemId") String itemId) {
 		QueryResult qr = DsTechShipping.getItemHist(itemId);
+		System.out.println("Log :: Rest :: Request for the history of the item with id:" + itemId + " was received");
 		if (qr.getStatus()) {
 			History history = new History(qr.getRequestedObjects());
 			String historyStr = gson.toJson(history);
@@ -92,6 +96,7 @@ public class ItemR {
 		if(dst == null)
 			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createItem(itemId, dst);
+		System.out.println("Log :: Rest :: Request to create item with id:" + itemId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(itemId + " Created succesfully", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -103,6 +108,7 @@ public class ItemR {
 	@Path("/{itemId}")
 	public Response deleteItem(@PathParam("itemId") String itemId) {
 		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(itemId);
+		System.out.println("Log :: Rest :: Request to Delete item with id:" + itemId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(itemId + " Deleted", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -125,6 +131,7 @@ public class ItemR {
 			}
 			
 			TransactionResult tr = DsTechShipping.moveSupplyChainObject(itemId, src, dst);
+			System.out.println("Log :: Rest :: Request to move item with id:" + itemId + " from: " + src + " to: " + dst + "was received");
 			if (tr.getStatus()) {
 				return Response.ok(itemId + " Moved from " + src + " to " + dst, MediaType.TEXT_PLAIN).build();
 			} else {
