@@ -94,7 +94,6 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getShipState(String id) {
-		System.out.println("@@@DstechShip try to take read3 - sync");
 		view.getRWLock().acquireRead();
 		
 		if (id == null || !id.startsWith(Ship.PREFIX)) {
@@ -133,7 +132,6 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getContainerState(String id) {
-		System.out.println("@@@DstechShip try to take read4 - sync");
 		view.getRWLock().acquireRead();
 		
 		if (id == null || !id.startsWith(Container.PREFIX)) {
@@ -153,7 +151,6 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getContainerHist(String id) {
-		System.out.println("@@@DstechShip try to take read - sync5");
 		view.getRWLock().acquireRead();
 		
 		if (id == null || !id.startsWith(Container.PREFIX)) {
@@ -173,7 +170,6 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getItemState(String id) {
-		System.out.println("@@@DstechShip try to take read6 - sync");
 		view.getRWLock().acquireRead();
 		
 		if (id == null || !id.startsWith(Item.PREFIX)) {
@@ -193,7 +189,6 @@ public class DsTechShipping {
 	}
 	
 	public static QueryResult getItemHist(String id) {
-		System.out.println("@@@DstechShip try to take read2 - sync");
 		view.getRWLock().acquireRead();
 		
 		if (id == null || !id.startsWith(Item.PREFIX)) {
@@ -225,9 +220,6 @@ public class DsTechShipping {
         }
         
         	TransactionResult tr1 = createShip("S_titanic", "Haifa");
-        	System.out.println("Status:" + tr1.getStatus());
-        	System.out.println("Message:" + tr1.getMessage());
-        	System.out.println("ship Created ..");
         	
         	TransactionResult tr2 = createContainer("C_1", "S_titanic");
         	System.out.println("Status:" + tr2.getStatus());
