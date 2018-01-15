@@ -38,7 +38,6 @@ public class ResponseStack {
 		
 		if (Integer.parseInt(msg.getArgs()) == relevantMessageDepth) {
 			stack.add(msg);
-			System.out.println("@@@addIfRelevant  " + gson.toJson(msg));
 			
 		}
 	}

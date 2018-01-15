@@ -96,7 +96,7 @@ public class ContainerR {
 		if(dst == null)
 			return Response.status(Response.Status.BAD_REQUEST).entity("Must insert destination").build();
 		TransactionResult tr = DsTechShipping.createContainer(containerId, dst);
-		System.out.println("Log :: Rest :: Request to create container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request to create container with id: " + containerId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Created succesfully", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -108,7 +108,7 @@ public class ContainerR {
 	@Path("/{containerId}")
 	public Response deleteContainer(@PathParam("containerId") String containerId) {
 		TransactionResult tr = DsTechShipping.deleteSupplyChainObject(containerId);
-		System.out.println("Log :: Rest :: Request to Delete container with id:" + containerId + " was received");
+		System.out.println("Log :: Rest :: Request to Delete container with id: " + containerId + " was received");
 		if (tr.getStatus()) {
 			return Response.ok(containerId + " Deleted", MediaType.TEXT_PLAIN).build();
 		} else {
@@ -131,7 +131,7 @@ public class ContainerR {
 			}
 			
 			TransactionResult tr = DsTechShipping.moveSupplyChainObject(containerId, src, dst);
-			System.out.println("Log :: Rest :: Request to move container with id:" + containerId + " from: " + src + " to: " + dst + "was received");
+			System.out.println("Log :: Rest :: Request to move container with id:" + containerId + " from: " + src + " to: " + dst + " was received");
 			if (tr.getStatus()) {
 				return Response.ok(containerId + " Moved from " + src + " to " + dst, MediaType.TEXT_PLAIN).build();
 			} else {
