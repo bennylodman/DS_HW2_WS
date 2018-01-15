@@ -11,7 +11,16 @@ public class SupplyChainMessage implements java.io.Serializable {
 	private MessageType type;
 	private Block block;
 	private String args;
+	private String blockName;
 	
+	public String getBlockName() {
+		return blockName;
+	}
+
+	public void setBlockName(String blockName) {
+		this.blockName = blockName;
+	}
+
 	public SupplyChainMessage(MessageType type) {
 		this(null, type);
 	}

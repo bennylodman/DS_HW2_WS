@@ -17,6 +17,8 @@ public class SupplyChainView {
 	private List<Block> blockChain;
 	private ReadersWritersLock rwl;
 	private Map<Integer, Block> waitingBlocks;
+	private Map<Integer, Block> newBlocks;
+	public Object newBlockLock = new Object();
 	
 	public SupplyChainView() {
 		this(0, "/Blockchain");
@@ -29,6 +31,7 @@ public class SupplyChainView {
 		this.knownBlocksDepth = knownBlocksDepth;
 		blockChain = new ArrayList<>();
 		waitingBlocks = new HashMap<>();
+		newBlocks = new HashMap<>();
 	}
 	
 	public ReadersWritersLock getRWLock() {
@@ -73,6 +76,24 @@ public class SupplyChainView {
 		}
 		rwl.releaseWrite();
 	}
+	public void addToNewBlocks(Block block) {
+		if (!newBlocks.containsKey(block.getDepth())) {
+			newBlocks.put(block.getDepth(), block);
+		}
+	}
+	
+	public void removeFromNewBlocks(int depth) {
+		if (newBlocks.containsKey(depth)) {
+			newBlocks.remove(depth);
+		}
+	}
+	
+	public Block getFromNewBlocks(int depth) {
+		if (newBlocks.containsKey(depth)) {
+			return newBlocks.get(depth);
+		}
+		return null;
+	}
 
 	// Assumes that called when write lock acquired
 	public void addToBlockChain(Block block) {
@@ -89,8 +110,14 @@ public class SupplyChainView {
 	
 	
 	public Block getFromBlockChainAndWaitinqQueue(int depth)
-	{
-		rwl.acquireRead();
+	{		
+		synchronized (DsTechShipping.getBlockChainView().newBlockLock) {
+			Block block = DsTechShipping.getBlockChainView().getFromNewBlocks(depth);
+			if(block != null)
+				return block;
+		}
+		
+		rwl.acquireRead();		
 		if ((blockChain.size() < depth) && waitingBlocks.containsKey(depth)) {
 			rwl.releaseRead();
 			return null;

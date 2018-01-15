@@ -32,6 +32,14 @@ public class UpdateViewHandler extends Thread {
 	}
 	
     public void run() {
+    	synchronized (DsTechShipping.getBlockChainView().newBlockLock) {
+        	if(DsTechShipping.getBlockChainView().getFromNewBlocks(message.getBlock().getDepth()) != null )
+        	{
+        		DsTechShipping.getBlockChainView().removeFromNewBlocks(message.getBlock().getDepth());
+        	}     		
+		}
+
+    	
     	if (!view.addToWaitingBlocks(message.getBlock()))
     		return;
     		

@@ -14,6 +14,8 @@ import org.apache.zookeeper.KeeperException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.plaf.synth.SynthColorChooserUI;
+
 /**
  * Created by benny on 04/01/2018.
  */
@@ -76,7 +78,7 @@ public class ServerThread extends Thread {
 			serversNamesBeforeRequest = DsTechShipping.zkHandler.getServerNames();
 
 			/*Send request message with current block to all servers*/
-			DsTechShipping.groupServers.requestBlock(block.getDepth());
+			DsTechShipping.groupServers.requestBlock(block.getDepth(), block.getBlockName());
 
 			/*While(got the block || all servers returned dont have it || already have block in view*/
 			while(waitForBlock)
@@ -266,22 +268,29 @@ public class ServerThread extends Thread {
 			/*Create block header to insert to Znode*/
 			BlockHeader blckToZnode = new BlockHeader(currentView.getKnownBlocksDepth() + 1,DsTechShipping.groupServers.getServerName());
 
-			/*Try to add block to the block chain*/
-			try {
-				path = DsTechShipping.zkHandler.addBlockToBlockChain(currentView.getKnownBlocksPath(), gson.toJson(blckToZnode), currentView.getKnownBlocksDepth() + 1);
-			} catch (KeeperException | InterruptedException e) {
-				e.printStackTrace();
-				assert(false);
-			} 
+			synchronized (DsTechShipping.getBlockChainView().newBlockLock) {
+				/*Try to add block to the block chain*/
+				try {
+					path = DsTechShipping.zkHandler.addBlockToBlockChain(currentView.getKnownBlocksPath(), gson.toJson(blckToZnode), currentView.getKnownBlocksDepth() + 1);
+				} catch (KeeperException | InterruptedException e) {
+					e.printStackTrace();
+					assert(false);
+				} 
+				
+				if(path != null) {
+					DsTechShipping.getBlockChainView().addToNewBlocks(blockToAddTheChain.getScMessage().getBlock());
+				}
+			}
+			
 
 			if(path != null)
 			{
-
 				/*Update block depth and name*/
 				String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
 				blockToAddTheChain.getScMessage().getBlock().setDepth(currentView.getKnownBlocksDepth() + 1);
 				blockToAddTheChain.getScMessage().getBlock().setBlockName(currentNodeName);
 				blockToAddTheChain.getScMessage().setSendersName(DsTechShipping.getGroupServers().getServerName());
+				blockToAddTheChain.getScMessage().setBlockName(currentNodeName);
 				
 				/*BlockHeader was added to chain*/
 				System.out.println("Log :: Server :: Block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " was added to global blockcahin");

@@ -53,12 +53,13 @@ public class GroupServers extends ReceiverAdapter {
 		return serverName;
 	}
 	
-	public void requestBlock(int blockDepth) {
+	public void requestBlock(int blockDepth, String blockName) {
 		rStack.reset(blockDepth, MessageType.RESPONSE_BLOCK);
 		SupplyChainMessage scMessage = new SupplyChainMessage(MessageType.REQUEST_BLOCK);
 		scMessage.setArgs(String.valueOf(blockDepth));
 		scMessage.setTargetName(BRODSCST);
 		scMessage.setSendersName(serverName);
+		scMessage.setBlockName(blockName);
 		try {
 			this.channel.send(new Message(null, gson.toJson(scMessage)));
 			System.out.println("Log :: Network :: sent REQUEST_BLOCK message to all servers, request for blcok number: " + blockDepth);
