@@ -110,13 +110,13 @@ public class GroupServers extends ReceiverAdapter {
 			}
 			
 			case ACK: {
-				System.out.println("Log :: Network :: receive ACK message from "+   scMessage.getSendersName() + " that received blcok" + scMessage.getBlock().getBlockName());
+				System.out.println("Log :: Network :: receive ACK message from "+   scMessage.getSendersName() + " that received blcok" );
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
 			
 			case RESPONSE_BLOCK: {
-				System.out.println("Log :: Network :: receive RESPONSE_BLOCK message from "+   scMessage.getSendersName() + " with block" + scMessage.getBlock().getBlockName());
+				System.out.println("Log :: Network :: receive RESPONSE_BLOCK message from "+   scMessage.getSendersName() + " with block" );
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
