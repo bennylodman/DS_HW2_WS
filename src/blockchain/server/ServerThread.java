@@ -279,19 +279,17 @@ public class ServerThread extends Thread {
 				
 				if(path != null) {
 					DsTechShipping.getBlockChainView().addToNewBlocks(blockToAddTheChain.getScMessage().getBlock());
+					/*Update block depth and name*/
+					String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
+					blockToAddTheChain.getScMessage().getBlock().setDepth(currentView.getKnownBlocksDepth() + 1);
+					blockToAddTheChain.getScMessage().getBlock().setBlockName(currentNodeName);
+					blockToAddTheChain.getScMessage().setSendersName(DsTechShipping.getGroupServers().getServerName());
+					blockToAddTheChain.getScMessage().setBlockName(currentNodeName);
 				}
 			}
 			
-
 			if(path != null)
-			{
-				/*Update block depth and name*/
-				String currentNodeName = path.substring(path.lastIndexOf("/") + 1);
-				blockToAddTheChain.getScMessage().getBlock().setDepth(currentView.getKnownBlocksDepth() + 1);
-				blockToAddTheChain.getScMessage().getBlock().setBlockName(currentNodeName);
-				blockToAddTheChain.getScMessage().setSendersName(DsTechShipping.getGroupServers().getServerName());
-				blockToAddTheChain.getScMessage().setBlockName(currentNodeName);
-				
+			{				
 				/*BlockHeader was added to chain*/
 				System.out.println("Log :: Server :: Block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " was added to global blockcahin");
 				
