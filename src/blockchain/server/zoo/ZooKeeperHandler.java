@@ -151,9 +151,7 @@ public class ZooKeeperHandler implements Watcher {
 		{
 			return blockList;
 		}
-		System.out.println("@@@suffix of path: " + suffixPath);
 		String[] parts = suffixPath.split("/");
-		System.out.println("@@@suffix array: " + parts);
 		for(int i=1; i<parts.length; i++)
 		{
 			currentPath = currentPath.concat("/");
