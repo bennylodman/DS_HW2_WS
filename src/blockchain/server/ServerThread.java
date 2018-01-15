@@ -243,10 +243,12 @@ public class ServerThread extends Thread {
 				goToSleep();
 				continue;
 			}
-			System.out.println("Log :: Server :: Start block insertion procedure, block depth: " + blockToAddTheChain.getScMessage().getBlock().getDepth());
+			
 			/*Lock Global view for read - does not change during build of current view*/
 			DsTechShipping.view.getRWLock().acquireRead();
 
+			System.out.println("Log :: Server :: Start block insertion procedure, block depth: " + DsTechShipping.view.getKnownBlocksDepth() + 1);
+			
 			/*Get current system view as this server knows it*/
 			SupplyChainView currentView = DsTechShipping.view.getCurrentView();
 
