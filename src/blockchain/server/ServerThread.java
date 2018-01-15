@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ServerThread extends Thread {
 	static public int SleepBetweenInsertingBlocks = 5;
 	static public int SleepBetweenValidateBlockchain = 1;
-	static public long WaitTimeForServerToRecieveBlock = 500; //in millisecond
+	static public long WaitTimeForServerToRecieveBlock = 2000; //in millisecond
 	static private Gson gson = new Gson();
 
 
@@ -189,15 +189,10 @@ public class ServerThread extends Thread {
 		/*Need find out what are the missing blocks*/
 		try {
 			missingBlockList = DsTechShipping.zkHandler.getAllTheNextBlocks(knownBlocksPath);
-			System.out.println("Log :: Update local data base :: check missing blocks");
 			if(!missingBlockList.isEmpty())
 			{
 				System.out.println("Log :: Update local data base :: missing blocks are: " + missingBlockList);
 				handleMissingBlock(knownBlocksPath, missingBlockList, notWaitForCraetor);	
-			}
-			else
-			{
-				System.out.println("Log :: Update local data base :: no missing blocks");
 			}
 					
 		} catch (KeeperException | InterruptedException e) {
@@ -238,7 +233,7 @@ public class ServerThread extends Thread {
 			{
 				blockToAddTheChain = null;
 				counterForBlockInsertion += SleepBetweenValidateBlockchain;
-				System.out.println("Log :: Server :: Periodic local data base update");
+				System.out.println("Log ::  ");
 				checkAndUpdateMissingBlocks(DsTechShipping.view.getKnownBlocksPath(), true);
 				goToSleep();
 				continue;
@@ -256,7 +251,7 @@ public class ServerThread extends Thread {
 			DsTechShipping.view.getRWLock().releaseRead();
 
 			/*Verify that block is legal - after this function need to check that it is not empty*/
-			System.out.println("Log :: Server :: Start block number: " + blockToAddTheChain.getScMessage().getBlock().getDepth() + " verification");
+			System.out.println("Log :: Server :: Start block number: " + DsTechShipping.view.getKnownBlocksDepth() + 1 + " verification");
 			
 			blockToAddTheChain.verifyBlock(currentView);
 			
