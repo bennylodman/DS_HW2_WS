@@ -241,8 +241,9 @@ public class ServerThread extends Thread {
 			
 			/*Lock Global view for read - does not change during build of current view*/
 			DsTechShipping.view.getRWLock().acquireRead();
-
-			System.out.println("Log :: Server :: Start block insertion procedure, block depth: " + DsTechShipping.view.getKnownBlocksDepth() + 1);
+			
+			int blockDepth = DsTechShipping.view.getKnownBlocksDepth() + 1;
+			System.out.println("Log :: Server :: Start block insertion procedure, block depth: " + blockDepth);
 			
 			/*Get current system view as this server knows it*/
 			SupplyChainView currentView = DsTechShipping.view.getCurrentView();
@@ -251,7 +252,7 @@ public class ServerThread extends Thread {
 			DsTechShipping.view.getRWLock().releaseRead();
 
 			/*Verify that block is legal - after this function need to check that it is not empty*/
-			System.out.println("Log :: Server :: Start block number: " + DsTechShipping.view.getKnownBlocksDepth() + 1 + " verification");
+			System.out.println("Log :: Server :: Start block number: " + blockDepth + " verification");
 			
 			blockToAddTheChain.verifyBlock(currentView);
 			

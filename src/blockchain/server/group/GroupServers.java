@@ -95,7 +95,7 @@ public class GroupServers extends ReceiverAdapter {
 			case PUBLISHE_BLOCK: {
 				if (!scMessage.getSendersName().equals(serverName))
 				{
-					System.out.println("Log :: Network :: receive PUBLISHE_BLOCK message from "+   scMessage.getSendersName() + " with block" + scMessage.getBlock().getBlockName());
+					System.out.println("Log :: Network :: receive PUBLISHE_BLOCK message from "+   scMessage.getSendersName() + " with block " + scMessage.getBlock().getBlockName());
 					new UpdateViewHandler(view, scMessage, channel, serverName, DsTechShipping.zkHandler, true).start();
 				}
 				break;
@@ -103,14 +103,17 @@ public class GroupServers extends ReceiverAdapter {
 			case REQUEST_BLOCK: {
 				if (!scMessage.getSendersName().equals(serverName))
 				{
-					System.out.println("Log :: Network :: receive REQUEST_BLOCK message from "+   scMessage.getSendersName() + "requesting block" + scMessage.getBlock().getBlockName());
+					System.out.println("Log :: Network :: receive REQUEST_BLOCK message from "+   scMessage.getSendersName() + "requesting block " + scMessage.getBlock().getBlockName());
 					new RequestBlockHandler(view, scMessage, channel, serverName).start();
 				}	
 				break;
 			}
 			
 			case ACK: {
-				System.out.println("Log :: Network :: receive ACK message from "+   scMessage.getSendersName() + " that received blcok" );
+				if (!scMessage.getSendersName().equals(serverName))
+				{ 
+					System.out.println("Log :: Network :: receive ACK message from "+   scMessage.getSendersName() + " that received blcok" );
+				}
 				rStack.addIfRelevant(scMessage);
 				break;
 			}
