@@ -111,25 +111,29 @@ public class SupplyChainView {
 	
 	public Block getFromBlockChainAndWaitinqQueue(int depth)
 	{		
+		Block block;
 		synchronized (DsTechShipping.getBlockChainView().newBlockLock) {
-			Block block = DsTechShipping.getBlockChainView().getFromNewBlocks(depth);
+			block = DsTechShipping.getBlockChainView().getFromNewBlocks(depth);
 			if(block != null)
 				return block;
 		}
 		
 		rwl.acquireRead();		
-		if ((blockChain.size() < depth) && waitingBlocks.containsKey(depth)) {
+		if ((blockChain.size() < depth) && (!waitingBlocks.containsKey(depth))) {
 			rwl.releaseRead();
 			return null;
 		}
-			
-		Block blok = blockChain.get(depth - 1);
-		if(blok == null)
+		
+		if(blockChain.contains(depth - 1))
 		{
-			blok = waitingBlocks.get(depth);
+			block = blockChain.get(depth-1);
+		}
+		else
+		{
+			block = waitingBlocks.get(depth);
 		}
 		rwl.releaseRead();
-		return blok;
+		return block;
 	}
 	
 	public Block getFromBlockChain(int depth) {
